@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Height of a small notification in the status bar -->
+    <dimen name="notification_min_height">52dp</dimen>
+    <!-- Height of a large notification in the status bar -->
+    <dimen name="notification_max_height">256dp</dimen>
+    <!-- The side padding of the notifications-->
+    <dimen name="notification_side_padding">10dp</dimen>
+    <!-- Height of the status bar header bar when expanded -->
+    <dimen name="status_bar_header_height_expanded">116dp</dimen>
+    <!-- bottom_stack_peek_amount + notification_min_height + notification_collapse_second_card_padding -->
+    <dimen name="min_stack_height">84dp</dimen>
+    <dimen name="pull_span_min">25dp</dimen>
+    <!-- Space reserved for the cards behind the top card in the bottom stack -->
+    <dimen name="bottom_stack_peek_amount">12dp</dimen>
+    <!-- The top padding of the clear all button -->
+    <dimen name="clear_all_padding_top">12dp</dimen>
+    <!-- The padding between the individual notification cards when dimmed. -->
+    <dimen name="notification_padding_dimmed">0dp</dimen>
+    <!-- Additional translation (downwards) for appearing notifications when going to the full shade
+            from Keyguard. -->
+    <dimen name="go_to_full_shade_appearing_translation">200dp</dimen>
+    !-- The padding between the individual notification cards. -->
+    <dimen name="notification_padding">10dp</dimen>
+    <!-- The minimum amount of top overscroll to go to the quick settings. -->
+    <dimen name="min_top_overscroll_to_qs">36dp</dimen>
+    <dimen name="notifications_top_padding">10dp</dimen>
+    <!-- The padding to the second card when the notifications collapse. -->
+    <dimen name="notification_collapse_second_card_padding">8dp</dimen>
+    <!-- Falsing threshold used when dismissing notifications from the lockscreen. -->
+    <dimen name="swipe_helper_falsing_threshold">70dp</dimen>
+    <!-- The height of the area before the bottom stack in which the notifications slow down -->
+    <dimen name="bottom_stack_slow_down_length">12dp</dimen>
+    <!-- radius of the corners of the material rounded rect background -->
+    <dimen name="notification_material_rounded_rect_radius">2dp</dimen>
+    <!-- The height of the area before the top stack in which the notifications slow down -->
+    <dimen name="top_stack_slow_down_length">12dp</dimen>
+    <!-- Space reserved for the cards behind the top card in the top stack -->
+    <dimen name="top_stack_peek_amount">12dp</dimen>
+    <!-- Z distance between notifications if they are in the stack -->
+    <dimen name="z_distance_between_notifications">1dp</dimen>
+    <!-- How far the expanded QS panel peeks from the header in collapsed state. -->
+    <dimen name="qs_peek_height">0dp</dimen>
+    <!-- Lockscreen falsing threshold for quick settings. -->
+    <dimen name="qs_falsing_threshold">40dp</dimen>
+    <dimen name="stack_scroll_panel_width">-1px</dimen>
+    <integer name="stack_scroll_layout_gravity">0x37</integer>
+    <!-- fill_horizontal|top -->
+    <!-- Move distance for the unlock hint animation on the lockscreen -->
+    <dimen name="hint_move_distance">75dp</dimen>
+    <!-- Lockscreen unlocking falsing threshold. -->
+    <dimen name="unlock_falsing_threshold">80dp</dimen>
+    <!-- Height of the status bar header bar -->
+    <dimen name="status_bar_header_height">60dp</dimen>
+
+    <dimen name="shadow_radius_size">3dp</dimen>
+
+</resources>

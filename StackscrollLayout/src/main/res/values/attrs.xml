@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="StackHeaderView">
+        <attr name="collapsed_height" format="dimension"/>
+        <attr name="expanded_height" format="dimension"/>
+    </declare-styleable>
+
+</resources>

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">StatckScrollLayout</string>
+    <!-- Defines the implementation of the velocity tracker to be used for the panel expansion. Can
+         be 'platform' or 'noisy' (i.e. for noisy touch screens). -->
+    <string name="velocity_tracker_impl" >platform</string>
+</resources>

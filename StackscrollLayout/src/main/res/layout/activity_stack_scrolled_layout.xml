@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2016 Baidu, Inc. All Rights Reserved.
+  -->
+<com.baidu.scrollstack.view.StackScrollPanelView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/stack_scroll_panel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#80000000">
+
+    <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/notification_container_parent"
+            android:clipToPadding="false"
+            android:clipChildren="false">
+
+        <com.baidu.scrollstack.view.ObservableScrollView
+                android:id="@+id/scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none"
+                android:overScrollMode="never"
+                android:fillViewport="true">
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                <RelativeLayout
+                        android:id="@+id/quick_settings_container"
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="@android:color/transparent"
+                        android:layout_marginLeft="@dimen/notification_side_padding"
+                        android:layout_marginRight="@dimen/notification_side_padding"/>
+            </LinearLayout>
+        </com.baidu.scrollstack.view.ObservableScrollView>
+
+        <com.baidu.scrollstack.stack.StackScrollLayout
+                android:id="@+id/stack_scroller"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+    </FrameLayout>
+
+    <include layout="@layout/statck_list_header"/>
+
+    <com.baidu.scrollstack.view.AlphaOptimizedView
+            android:id="@+id/qs_navbar_scrim"
+            android:layout_height="96dp"
+            android:layout_width="match_parent"
+            android:layout_gravity="bottom"
+            android:visibility="invisible"
+            android:background="@drawable/qs_navbar_scrim"/>
+</com.baidu.scrollstack.view.StackScrollPanelView>

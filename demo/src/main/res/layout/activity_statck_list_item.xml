@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.baidu.scrollstack.view.ExpandableRowView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:focusable="true"
+        android:clickable="true"
+        android:layout_gravity="center">
+    <RelativeLayout
+            android:id="@+id/content"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:background="@android:color/white">
+
+        <TextView
+                android:id="@+id/text"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:layout_gravity="center"
+                android:textColor="@android:color/black"/>
+
+    </RelativeLayout>
+
+</com.baidu.scrollstack.view.ExpandableRowView>

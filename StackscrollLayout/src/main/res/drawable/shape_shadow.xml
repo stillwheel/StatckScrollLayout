@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape android:shape="rectangle">
+            <gradient android:startColor="#555" android:endColor="#666" android:angle="270"/>
+        </shape>
+    </item>
+
+    <item
+            android:left="0.5px"
+            android:top="0.5px"
+            android:right="0.5px"
+            android:bottom="0.5px">
+        <shape android:shape="rectangle">
+            <gradient android:startColor="#666" android:endColor="#777" android:angle="270"/>
+        </shape>
+
+    </item>
+
+
+    <item
+            android:left="1px"
+            android:top="1px"
+            android:right="1px"
+            android:bottom="1px">
+        <shape android:shape="rectangle">
+            <gradient android:startColor="#777" android:endColor="#888" android:angle="270"/>
+        </shape>
+
+    </item>
+
+
+    <item
+            android:left="1.5px"
+            android:top="1.5px"
+            android:right="1.5px"
+            android:bottom="1.5px">
+        <shape android:shape="rectangle">
+            <gradient android:startColor="#888" android:endColor="#999" android:angle="270"/>
+        </shape>
+
+    </item>
+
+
+    <item
+            android:left="2px"
+            android:top="2px"
+            android:right="2px"
+            android:bottom="2px">
+        <shape android:shape="rectangle">
+            <gradient android:startColor="#999" android:endColor="#aaa" android:angle="270"/>
+        </shape>
+
+    </item>
+
+    <item
+            android:left="2.5px"
+            android:top="2.5px"
+            android:right="2.5px"
+            android:bottom="2.5px">
+        <shape android:shape="rectangle">
+            <solid android:color="#fff" />
+        </shape>
+
+    </item>
+
+</layer-list>
