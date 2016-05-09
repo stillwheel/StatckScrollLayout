@@ -9,7 +9,6 @@ import com.example.baidu.app.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.TextView;
 
 /**
@@ -47,7 +46,7 @@ public class StackViewAdapter extends StackViewBaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.activity_statck_list_item, null);
+            convertView = layoutInflater.inflate(R.layout.activity_stack_list_item, null);
             viewHolder = new ViewHolder();
             viewHolder.textView = (TextView) convertView.findViewById(R.id.text);
             convertView.setTag(viewHolder);

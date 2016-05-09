@@ -157,55 +157,6 @@ public class StackScrollPanelView extends PanelView implements
         super(context, attrs);
     }
 
-    private static float interpolate(float t, float start, float end) {
-        return (1 - t) * start + t * end;
-    }
-
-    public static void setBackgroundColorAlpha(final View target, int rgb, int targetAlpha,
-                                               boolean animate) {
-        int currentAlpha = getBackgroundAlpha(target);
-        if (currentAlpha == targetAlpha) {
-            return;
-        }
-        final int r = Color.red(rgb);
-        final int g = Color.green(rgb);
-        final int b = Color.blue(rgb);
-        Object runningAnim = target.getTag(TAG_KEY_ANIM);
-        if (runningAnim instanceof ValueAnimator) {
-            ((ValueAnimator) runningAnim).cancel();
-        }
-        if (!animate) {
-            target.setBackgroundColor(Color.argb(targetAlpha, r, g, b));
-            return;
-        }
-        ValueAnimator anim = ValueAnimator.ofInt(currentAlpha, targetAlpha);
-        anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animation) {
-                int value = (int) animation.getAnimatedValue();
-                target.setBackgroundColor(Color.argb(value, r, g, b));
-            }
-        });
-        anim.setDuration(DOZE_BACKGROUND_ANIM_DURATION);
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                target.setTag(TAG_KEY_ANIM, null);
-            }
-        });
-        anim.start();
-        target.setTag(TAG_KEY_ANIM, anim);
-    }
-
-    private static int getBackgroundAlpha(View view) {
-        if (view.getBackground() instanceof ColorDrawable) {
-            ColorDrawable drawable = (ColorDrawable) view.getBackground();
-            return Color.alpha(drawable.getColor());
-        } else {
-            return 0;
-        }
-    }
-
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
@@ -235,11 +186,10 @@ public class StackScrollPanelView extends PanelView implements
             mFastOutSlowInInterpolator = AnimationUtils.loadInterpolator(getContext(),
                     android.R.interpolator.fast_out_slow_in);
         } else {
-            mFastOutSlowInInterpolator =  new LocalPathInterpolator(0.4f, 0, 0.2f, 1);
+            mFastOutSlowInInterpolator = new LocalPathInterpolator(0.4f, 0, 0.2f, 1);
         }
 
         mQsNavbarScrim = findViewById(R.id.qs_navbar_scrim);
-
 
         // recompute internal state when qspanel height changes
         mQsContainer.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -275,7 +225,7 @@ public class StackScrollPanelView extends PanelView implements
     protected void loadDimens() {
         super.loadDimens();
         mNotificationTopPadding = getResources().getDimensionPixelSize(
-                R.dimen.notifications_top_padding);
+                R.dimen.stackitem_top_padding);
         mFlingAnimationUtils = new FlingAnimationUtils(getContext(), 0.4f);
         mStatusBarMinHeight = getStatusBarHeight();
         mQsPeekHeight = getResources().getDimensionPixelSize(R.dimen.qs_peek_height);
@@ -341,9 +291,9 @@ public class StackScrollPanelView extends PanelView implements
     private void positionClockAndNotifications() {
         boolean animate = mStackScroller.isAddOrRemoveAnimationPending();
         int stackScrollerPadding = 0;
-            int bottom = mHeader.getCollapsedHeight();
-            stackScrollerPadding = bottom + mQsPeekHeight + mNotificationTopPadding;
-            mTopPaddingAdjustment = 0;
+        int bottom = mHeader.getCollapsedHeight();
+        stackScrollerPadding = bottom + mQsPeekHeight + mNotificationTopPadding;
+        mTopPaddingAdjustment = 0;
         mStackScroller.setIntrinsicPadding(stackScrollerPadding);
         requestScrollerTopPaddingUpdate(animate);
     }
@@ -560,8 +510,8 @@ public class StackScrollPanelView extends PanelView implements
 
     private boolean isInQsArea(float x, float y) {
         return (x >= mScrollView.getLeft() && x <= mScrollView.getRight()) &&
-                        (y <= mStackScroller.getBottomMostNotificationBottom()
-                                 || y <= mQsContainer.getY() + mQsContainer.getHeight());
+                (y <= mStackScroller.getBottomMostNotificationBottom()
+                         || y <= mQsContainer.getY() + mQsContainer.getHeight());
     }
 
     private void handleQsDown(MotionEvent event) {
@@ -778,7 +728,9 @@ public class StackScrollPanelView extends PanelView implements
     }
 
     private void trackMovement(MotionEvent event) {
-        if (mVelocityTracker != null) mVelocityTracker.addMovement(event);
+        if (mVelocityTracker != null) {
+            mVelocityTracker.addMovement(event);
+        }
         mLastTouchX = event.getX();
         mLastTouchY = event.getY();
     }
@@ -911,13 +863,13 @@ public class StackScrollPanelView extends PanelView implements
         updateHeader();
         updateNotificationTranslucency();
         int panelHeight = calculatePanelHeightShade();
-        int alpha = (int) ((Math.min(expandedHeight,panelHeight) * 1.0f / panelHeight) * mBackgroundAlpha);
+        int alpha = (int) ((Math.min(expandedHeight, panelHeight) * 1.0f / panelHeight) * mBackgroundAlpha);
         updateBackgroundColor(this, alpha, mBackgroundColor);
     }
 
     /**
      * @return a temporary override of {@link #mQsMaxExpansionHeight}, which is needed when
-     *         collapsing QS / the panel when QS was scrolled
+     * collapsing QS / the panel when QS was scrolled
      */
     private int getTempQsMaxExpansion() {
         int qsTempMaxExpansion = mQsMaxExpansionHeight;
@@ -1068,13 +1020,13 @@ public class StackScrollPanelView extends PanelView implements
             return;
         }
         mStackScroller.setOnHeightChangedListener(null);
-            if (isPixels) {
-                mStackScroller.setOverScrolledPixels(
-                        overExpansion, true /* onTop */, false /* animate */);
-            } else {
-                mStackScroller.setOverScrollAmount(
-                        overExpansion, true /* onTop */, false /* animate */);
-            }
+        if (isPixels) {
+            mStackScroller.setOverScrolledPixels(
+                    overExpansion, true /* onTop */, false /* animate */);
+        } else {
+            mStackScroller.setOverScrollAmount(
+                    overExpansion, true /* onTop */, false /* animate */);
+        }
         mStackScroller.setOnHeightChangedListener(this);
     }
 
@@ -1200,7 +1152,7 @@ public class StackScrollPanelView extends PanelView implements
         mStackScroller.setEnableOverScroll(mEnableOverScroll);
     }
 
-    public boolean isExpanding(){
+    public boolean isExpanding() {
         return mIsExpanding;
     }
 }

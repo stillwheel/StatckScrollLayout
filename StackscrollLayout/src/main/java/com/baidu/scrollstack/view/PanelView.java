@@ -52,7 +52,6 @@ public abstract class PanelView extends FrameLayout {
     protected int mTouchSlop;
     protected boolean mHintAnimationRunning;
     private boolean mOverExpandedBeforeFling;
-    private int mUnlockFalsingThreshold;
     private ValueAnimator mHeightAnimator;
     private ObjectAnimator mPeekAnimator;
     private VelocityTracker mVelocityTracker;
@@ -174,7 +173,6 @@ public abstract class PanelView extends FrameLayout {
         final ViewConfiguration configuration = ViewConfiguration.get(getContext());
         mTouchSlop = configuration.getScaledTouchSlop();
         mHintDistance = res.getDimension(R.dimen.hint_move_distance);
-        mUnlockFalsingThreshold = res.getDimensionPixelSize(R.dimen.unlock_falsing_threshold);
     }
 
     private void trackMovement(MotionEvent event) {
@@ -337,11 +335,6 @@ public abstract class PanelView extends FrameLayout {
                 break;
         }
         return !waitForTouchSlop || mTracking;
-    }
-
-    private int getFalsingThreshold() {
-        float factor = 1.5f;
-        return (int) (mUnlockFalsingThreshold * factor);
     }
 
     protected abstract boolean hasConflictingGestures();

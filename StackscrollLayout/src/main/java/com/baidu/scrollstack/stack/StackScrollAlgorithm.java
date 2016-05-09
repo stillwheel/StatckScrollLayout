@@ -86,19 +86,19 @@ public class StackScrollAlgorithm {
 
     private void initConstants(Context context) {
         mPaddingBetweenElementsDimmed = context.getResources()
-                .getDimensionPixelSize(R.dimen.notification_padding_dimmed);
+                .getDimensionPixelSize(R.dimen.stackitem_padding_dimmed);
         mPaddingBetweenElementsNormal = context.getResources()
                 .getDimensionPixelSize(R.dimen.notification_padding);
         mCollapsedSize = context.getResources()
-                .getDimensionPixelSize(R.dimen.notification_min_height);
+                .getDimensionPixelSize(R.dimen.stackitem_min_height);
         mMaxNotificationHeight = context.getResources()
-                .getDimensionPixelSize(R.dimen.notification_max_height);
+                .getDimensionPixelSize(R.dimen.stackitem_max_height);
         mTopStackPeekSize = context.getResources()
                 .getDimensionPixelSize(R.dimen.top_stack_peek_amount);
         mBottomStackPeekSize = context.getResources()
                 .getDimensionPixelSize(R.dimen.bottom_stack_peek_amount);
         mZDistanceBetweenElements = context.getResources()
-                .getDimensionPixelSize(R.dimen.z_distance_between_notifications);
+                .getDimensionPixelSize(R.dimen.z_distance_between_stackitems);
         mZBasicHeight = (MAX_ITEMS_IN_BOTTOM_STACK + 1) * mZDistanceBetweenElements;
         mBottomStackSlowDownLength = context.getResources()
                 .getDimensionPixelSize(R.dimen.bottom_stack_slow_down_length);

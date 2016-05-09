@@ -10,13 +10,10 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Outline;
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewOutlineProvider;
-import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 /**
@@ -52,9 +49,9 @@ public class StackHeaderView extends RelativeLayout {
         Resources resources = getResources();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.StackHeaderView, defStyleAttr, 0);
         mCollapsedHeight = a.getLayoutDimension(R.styleable.StackHeaderView_collapsed_height,
-                resources.getDimensionPixelSize(R.dimen.status_bar_header_height));
+                resources.getDimensionPixelSize(R.dimen.stack_bar_header_height));
         mExpandedHeight = a.getLayoutDimension(R.styleable.StackHeaderView_expanded_height,
-                resources.getDimensionPixelSize(R.dimen.status_bar_header_height_expanded));
+                resources.getDimensionPixelSize(R.dimen.stack_bar_header_height_expanded));
     }
 
     @TargetApi(21)

@@ -214,8 +214,8 @@ public class StackScrollLayout extends StackScrollLayoutParent
 
     public StackScrollLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        int minHeight = getResources().getDimensionPixelSize(R.dimen.notification_min_height);
-        int maxHeight = getResources().getDimensionPixelSize(R.dimen.notification_max_height);
+        int minHeight = getResources().getDimensionPixelSize(R.dimen.stackitem_min_height);
+        int maxHeight = getResources().getDimensionPixelSize(R.dimen.stackitem_max_height);
         int shadowRadius = getResources().getDimensionPixelSize(R.dimen.shadow_radius_size);
         if (Define.SDK_INT < 21) {
             minHeight += shadowRadius;
@@ -279,15 +279,15 @@ public class StackScrollLayout extends StackScrollLayoutParent
         mOverflingDistance = configuration.getScaledOverflingDistance();
 
         mSidePaddings = context.getResources()
-                .getDimensionPixelSize(R.dimen.notification_side_padding);
+                .getDimensionPixelSize(R.dimen.stack_layout_side_padding);
         mCollapsedSize = context.getResources()
-                .getDimensionPixelSize(R.dimen.notification_min_height);
+                .getDimensionPixelSize(R.dimen.stackitem_min_height);
         mBottomStackPeekSize = context.getResources()
                 .getDimensionPixelSize(R.dimen.bottom_stack_peek_amount);
         mStackScrollAlgorithm = new StackScrollAlgorithm(context);
         mStackScrollAlgorithm.setDimmed(mAmbientState.isDimmed());
         mPaddingBetweenElementsDimmed = context.getResources()
-                .getDimensionPixelSize(R.dimen.notification_padding_dimmed);
+                .getDimensionPixelSize(R.dimen.stackitem_padding_dimmed);
         mPaddingBetweenElementsNormal = context.getResources()
                 .getDimensionPixelSize(R.dimen.notification_padding);
 
@@ -303,7 +303,7 @@ public class StackScrollLayout extends StackScrollLayoutParent
         mMinTopOverScrollToEscape = getResources().getDimensionPixelSize(
                 R.dimen.min_top_overscroll_to_qs);
         mNotificationTopPadding = getResources().getDimensionPixelSize(
-                R.dimen.notifications_top_padding);
+                R.dimen.stackitem_top_padding);
         mCollapseSecondCardPadding = getResources().getDimensionPixelSize(
                 R.dimen.notification_collapse_second_card_padding);
     }

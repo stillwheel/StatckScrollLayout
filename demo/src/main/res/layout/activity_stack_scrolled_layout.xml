@@ -45,7 +45,7 @@
 
     </FrameLayout>
 
-    <include layout="@layout/stack_list_header"/>
+    <include layout="@layout/stack_header"/>
 
     <com.baidu.scrollstack.view.AlphaOptimizedView
             android:id="@+id/qs_navbar_scrim"

@@ -41,7 +41,7 @@ public abstract class ExpandableView extends FrameLayout implements View.OnClick
     public ExpandableView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mMaxNotificationHeight = getResources().getDimensionPixelSize(
-                R.dimen.notification_max_height);
+                R.dimen.stackitem_max_height);
         shadowRadius = getResources().getDimensionPixelSize(
                 R.dimen.shadow_radius_size);
         shadowStartColor = getResources().getColor(R.color.shadow_start_color);
@@ -381,7 +381,7 @@ public abstract class ExpandableView extends FrameLayout implements View.OnClick
         int action = event.getAction();
         switch (action) {
             case MotionEvent.ACTION_UP:
-                if (performClick != null) {
+                if (onClickListener == null && performClick != null) {
                     performClick.performClick(this);
                 }
                 break;
@@ -390,18 +390,15 @@ public abstract class ExpandableView extends FrameLayout implements View.OnClick
     }
 
     @Override
-    public void onClick(View v) {
-        if (performClick != null) {
-            performClick.performClick(this);
-        }
-        if (onClickListener != null) {
-            onClickListener.onClick(this);
-        }
+    public void setOnClickListener(OnClickListener l) {
+        onClickListener = l;
     }
 
     @Override
-    public void setOnClickListener(OnClickListener l) {
-        onClickListener = l;
+    public void onClick(View v) {
+        if (onClickListener != null) {
+            onClickListener.onClick(this);
+        }
     }
 
     /**
