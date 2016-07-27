@@ -175,7 +175,7 @@ public class StackScrollLayout extends StackScrollLayoutParent
     private boolean mRequestViewResizeAnimationOnLayout;
     private boolean mNeedViewResizeAnimation;
     private boolean mEverythingNeedsAnimation;
-    private boolean mEnableOverScroll;
+    private boolean mEnableOverScroll = true;
     /**
      * The maximum scrollPosition which we are allowed to reach when a notification was expanded.
      * This is needed to avoid scrolling too far after the notification was collapsed in the same

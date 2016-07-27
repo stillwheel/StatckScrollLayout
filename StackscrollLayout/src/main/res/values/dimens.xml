@@ -38,7 +38,7 @@
     <!-- Z distance between stackitems if they are in the stack -->
     <dimen name="z_distance_between_stackitems">1dp</dimen>
     <!-- How far the expanded QS panel peeks from the header in collapsed state. -->
-    <dimen name="qs_peek_height">0dp</dimen>
+    <dimen name="scroll_peek_height">0dp</dimen>
     <dimen name="qs_falsing_threshold">40dp</dimen>
     <dimen name="stack_scroll_panel_width">-1px</dimen>
     <integer name="stack_scroll_layout_gravity">0x37</integer>
@@ -47,5 +47,6 @@
     <dimen name="stack_bar_header_height">60dp</dimen>
 
     <dimen name="shadow_radius_size">3dp</dimen>
+    <dimen name="stack_spring_height">300dp</dimen>
 
 </resources>

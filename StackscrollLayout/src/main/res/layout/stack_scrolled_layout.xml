@@ -29,9 +29,9 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
                 <RelativeLayout
-                        android:id="@+id/quick_settings_container"
+                        android:id="@+id/stack_spring_layout"
                         android:layout_width="match_parent"
-                        android:layout_height="300dp"
+                        android:layout_height="@dimen/stack_spring_height"
                         android:background="@android:color/transparent"
                         android:layout_marginLeft="@dimen/stack_layout_side_padding"
                         android:layout_marginRight="@dimen/stack_layout_side_padding"/>
@@ -45,13 +45,13 @@
 
     </FrameLayout>
 
-    <include layout="@layout/stack_header"/>
+    <include layout="@layout/stack_list_header"/>
 
     <com.baidu.scrollstack.view.AlphaOptimizedView
-            android:id="@+id/qs_navbar_scrim"
+            android:id="@+id/scroll_navbar_scrim"
             android:layout_height="96dp"
             android:layout_width="match_parent"
             android:layout_gravity="bottom"
             android:visibility="invisible"
-            android:background="@drawable/qs_navbar_scrim"/>
+            android:background="@drawable/scroll_navbar_scrim"/>
 </com.baidu.scrollstack.view.StackScrollPanelView>

@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.baidu.scrollstack.view.StackHeaderView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/header"
-    android:layout_width="match_parent"
-    android:layout_height="@dimen/stack_bar_header_height"
-    android:layout_marginLeft="@dimen/stack_layout_side_padding"
-    android:layout_marginRight="@dimen/stack_layout_side_padding"
-    android:background="@android:color/white"
-    android:baselineAligned="false"
-    android:elevation="4dp"
-    android:clickable="true"
-    android:focusable="true">
+        xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/stack_bar_header_height"
+        app:collapsed_height="@dimen/stack_bar_header_height"
+        app:expanded_height="@dimen/stack_bar_header_height_expanded"
+        android:layout_marginLeft="@dimen/stack_layout_side_padding"
+        android:layout_marginRight="@dimen/stack_layout_side_padding"
+        android:background="@android:color/white"
+        android:baselineAligned="false"
+        android:elevation="4dp"
+        android:clickable="true"
+        android:focusable="true">
 
 </com.baidu.scrollstack.view.StackHeaderView>

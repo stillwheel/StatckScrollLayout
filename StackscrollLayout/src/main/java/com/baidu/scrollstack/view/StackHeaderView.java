@@ -6,7 +6,6 @@ import com.baidu.scrollstack.uitl.Define;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Outline;
 import android.graphics.Rect;
@@ -21,19 +20,15 @@ import android.widget.RelativeLayout;
  */
 public class StackHeaderView extends RelativeLayout {
 
-    private boolean mExpanded;
-    private boolean mListening;
-
-    private int mCollapsedHeight;
-    private int mExpandedHeight;
-
     private final Rect mClipBounds = new Rect();
-
-    private boolean mCaptureValues;
     private final LayoutValues mCollapsedValues = new LayoutValues();
     private final LayoutValues mExpandedValues = new LayoutValues();
     private final LayoutValues mCurrentValues = new LayoutValues();
-
+    private boolean mExpanded;
+    private boolean mListening;
+    private int mCollapsedHeight;
+    private int mExpandedHeight;
+    private boolean mCaptureValues;
     private float mCurrentT;
 
     public StackHeaderView(Context context) {
@@ -46,12 +41,9 @@ public class StackHeaderView extends RelativeLayout {
 
     public StackHeaderView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        Resources resources = getResources();
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.StackHeaderView, defStyleAttr, 0);
-        mCollapsedHeight = a.getLayoutDimension(R.styleable.StackHeaderView_collapsed_height,
-                resources.getDimensionPixelSize(R.dimen.stack_bar_header_height));
-        mExpandedHeight = a.getLayoutDimension(R.styleable.StackHeaderView_expanded_height,
-                resources.getDimensionPixelSize(R.dimen.stack_bar_header_height_expanded));
+        mCollapsedHeight = a.getLayoutDimension(R.styleable.StackHeaderView_collapsed_height, 0);
+        mExpandedHeight = a.getLayoutDimension(R.styleable.StackHeaderView_expanded_height, 0);
     }
 
     @TargetApi(21)
@@ -135,7 +127,7 @@ public class StackHeaderView extends RelativeLayout {
     private void updateHeights() {
         int height = mExpanded ? mExpandedHeight : mCollapsedHeight;
         ViewGroup.LayoutParams lp = getLayoutParams();
-        if (lp.height != height) {
+        if (lp != null && lp.height != height) {
             lp.height = height;
             setLayoutParams(lp);
         }

@@ -10,18 +10,20 @@ import com.example.baidu.app.R;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 /**
  * Created by helingjian on 16/3/14.
  */
 public class StackScrollDemoActivity extends Activity {
 
+    private static final int TYPE_STACK_ONLY = 0;
+    private static final int TYPE_STACK_AND_SCROLL = 1;
+    private static final int TYPE_STACK_WITH_SPRING = 2;
+    private int demoType = 2;
     private StackViewAdapter stackViewAdapter;
     private StackScrollPanelView stackScrollPanelView;
     private StackScrollLayout mStackScroller;
@@ -30,7 +32,6 @@ public class StackScrollDemoActivity extends Activity {
     StackScrollLayout.OnItemClickListener onStackItemClickListener = new StackScrollLayout.OnItemClickListener() {
         @Override
         public void onItemClick(StackScrollLayout parent, View itemView, int position, long id) {
-            Log.i("onItemClick", "onItemClick");
             stackHeader.setText("onItemClick position = " + position);
         }
     };
@@ -38,22 +39,42 @@ public class StackScrollDemoActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stack_scrolled_layout);
+        switch (demoType) {
+            case TYPE_STACK_ONLY:
+                setContentView(R.layout.activity_stack_layout);
+                break;
+            case TYPE_STACK_AND_SCROLL:
+                setContentView(R.layout.activity_stack_scroll_layout);
+                break;
+            case TYPE_STACK_WITH_SPRING:
+                setContentView(R.layout.activity_stack_spring_layout);
+                break;
+            default:
+                break;
+        }
+        initScroller();
+    }
+
+    private void initScroller() {
         mStackScroller = (StackScrollLayout) findViewById(R.id.stack_scroller);
         stackHeader = (TextView) findViewById(R.id.stack_scroll_header);
         stackScrollPanelView = (StackScrollPanelView) findViewById(R.id.stack_scroll_panel);
-        stackScrollPanelView.setEnableOverScroll(true);
-
-        List<String> list = new ArrayList<String>();
-        for (int i = 0; i < 26; i++) {
-            list.add("下拉测试第" + i + "个view");
-        }
         stackViewAdapter = new StackViewAdapter(LayoutInflater.from(this));
-        stackViewAdapter.setData(list);
+        stackViewAdapter.setData(getData());
         mStackScroller.setAdapter(stackViewAdapter);
         mStackScroller.setOnItemClickListener(onStackItemClickListener);
-        mStackScroller.setScrollingEnabled(true);
-        stackHeader.setText("Header");
+        if (demoType == TYPE_STACK_AND_SCROLL) {
+            stackScrollPanelView.setEnableOverScroll(false);
+        }
+    }
+
+    private List<String> getData() {
+        List<String> list = new ArrayList<String>();
+        Calendar calendar = Calendar.getInstance();
+        for (int i = 0; i < 26; i++) {
+            list.add(i + " :" + calendar.getTime());
+        }
+        return list;
     }
 
     @Override
@@ -69,13 +90,7 @@ public class StackScrollDemoActivity extends Activity {
         } else if (stackScrollPanelView.isFullyCollapsed()) {
             stackScrollPanelView.expand(false);
         }
-        List<String> list = new ArrayList<String>();
-        Calendar calendar = Calendar.getInstance();
-        for (int i = 0; i < 26; i++) {
-            list.add("下拉测试i " + i + " : " + calendar.get(Calendar.HOUR)
-                    + " : " + calendar.get(Calendar.MINUTE) + " : " + calendar.get(Calendar.SECOND));
-        }
-        stackViewAdapter.setData(list);
+        stackViewAdapter.setData(getData());
         stackViewAdapter.notifyDataSetChanged();
     }
 }

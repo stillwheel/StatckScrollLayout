@@ -34,9 +34,6 @@ public class StackScrollPanelView extends PanelView implements
 
     private static final float HEADER_RUBBERBAND_FACTOR = 2.05f;
 
-    private static final int TAG_KEY_ANIM = R.id.scrim;
-    private static final long DOZE_BACKGROUND_ANIM_DURATION = 220;
-
     private StackHeaderView mHeader;
     private final Runnable mUpdateHeader = new Runnable() {
         @Override
@@ -44,75 +41,75 @@ public class StackScrollPanelView extends PanelView implements
             mHeader.updateEverything();
         }
     };
-    private View mQsContainer;
+    private View mScrollLayout;
     private ObservableScrollView mScrollView;
-    private View mQsNavbarScrim;
+    private View mSCrollLayoutNavbarScrim;
     private StackScrollLayout mStackScroller;
     private int mNotificationTopPadding;
     private boolean mAnimateNextTopPaddingChange;
     private int mTrackingPointer;
     private VelocityTracker mVelocityTracker;
-    private boolean mQsTracking;
+    private boolean mScrollLayoutTracking;
     private int mBackgroundColor;
     private int mBackgroundAlpha;
     /**
      * If set, the ongoing touch gesture might both trigger the expansion in {@link PanelView} and
      * the expansion for quick settings.
      */
-    private boolean mConflictingQsExpansionGesture;
+    private boolean mConflictingScrollLayoutExpansionGesture;
     /**
      * Whether we are currently handling a motion gesture in #onInterceptTouchEvent, but haven't
      * intercepted yet.
      */
     private boolean mIntercepting;
-    private boolean mQsExpanded;
-    private boolean mQsExpandedWhenExpandingStarted;
-    private boolean mQsFullyExpanded;
+    private boolean mScrollLayoutExpanded;
+    private boolean mScrollLayoutExpandedWhenExpandingStarted;
+    private boolean mScrollLayoutFullyExpanded;
     private float mInitialHeightOnTouch;
     private float mInitialTouchX;
     private float mInitialTouchY;
     private float mLastTouchX;
     private float mLastTouchY;
-    private float mQsExpansionHeight;
-    private int mQsMinExpansionHeight;
-    private int mQsMaxExpansionHeight;
-    private int mQsPeekHeight;
+    private float mScrollLayoutExpansionHeight;
+    private int mScrollLayoutMinExpansionHeight;
+    private int mScrollLayoutMaxExpansionHeight;
+    private int mScrollLayoutPeekHeight;
     private boolean mStackScrollerOverscrolling;
-    private boolean mQsExpansionFromOverscroll;
+    private boolean mScrollLayoutExpansionFromOverscroll;
     private float mLastOverscroll;
-    private boolean mQsExpansionEnabled = true;
-    private ValueAnimator mQsExpansionAnimator;
+    private boolean mScrollLayoutExpansionEnabled = true;
+    private ValueAnimator mScrollLayoutExpansionAnimator;
     private FlingAnimationUtils mFlingAnimationUtils;
     private int mStatusBarMinHeight;
     private Interpolator mFastOutSlowInInterpolator;
     private int mTopPaddingAdjustment;
     private boolean mIsExpanding;
     private boolean mBlockTouches;
-    private boolean mTwoFingerQsExpand;
-    private boolean mTwoFingerQsExpandPossible;
+    private boolean mTwoFingerScrollLayoutExpand;
+    private boolean mTwoFingerScrollLayoutExpandPossible;
     private boolean mEnableOverScroll;
     /**
      * If we are in a panel collapsing motion, we reset scrollY of our scroll view but still
      * need to take this into account in our panel height calculation.
      */
     private int mScrollYOverride = -1;
-    private boolean mQsAnimatorExpand;
+    private boolean mSCrollLayoutAnimatorExpand;
     private boolean mOnlyAffordanceInThisMotion;
     private boolean mHeaderAnimatingIn;
-    private ObjectAnimator mQsContainerAnimator;
-    private final View.OnLayoutChangeListener mQsContainerAnimatorUpdater
+    private ObjectAnimator mScrollContainerAnimator;
+    private final View.OnLayoutChangeListener mScrollContainerAnimatorUpdater
             = new View.OnLayoutChangeListener() {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
                                    int oldTop, int oldRight, int oldBottom) {
             int oldHeight = oldBottom - oldTop;
             int height = bottom - top;
-            if (height != oldHeight && mQsContainerAnimator != null) {
-                PropertyValuesHolder[] values = mQsContainerAnimator.getValues();
-                float newEndValue = mHeader.getCollapsedHeight() + mQsPeekHeight - height - top;
+            if (height != oldHeight && mScrollContainerAnimator != null) {
+                PropertyValuesHolder[] values = mScrollContainerAnimator.getValues();
+                float newEndValue = mHeader.getCollapsedHeight() + mScrollLayoutPeekHeight - height - top;
                 float newStartValue = -height - top;
                 values[0].setFloatValues(newStartValue, newEndValue);
-                mQsContainerAnimator.setCurrentPlayTime(mQsContainerAnimator.getCurrentPlayTime());
+                mScrollContainerAnimator.setCurrentPlayTime(mScrollContainerAnimator.getCurrentPlayTime());
             }
         }
     };
@@ -121,8 +118,8 @@ public class StackScrollPanelView extends PanelView implements
         @Override
         public void onAnimationEnd(Animator animation) {
             mHeaderAnimatingIn = false;
-            mQsContainerAnimator = null;
-            mQsContainer.removeOnLayoutChangeListener(mQsContainerAnimatorUpdater);
+            mScrollContainerAnimator = null;
+            mScrollLayout.removeOnLayoutChangeListener(mScrollContainerAnimatorUpdater);
         }
     };
     private final ViewTreeObserver.OnPreDrawListener mStartHeaderSlidingIn
@@ -130,28 +127,28 @@ public class StackScrollPanelView extends PanelView implements
         @Override
         public boolean onPreDraw() {
             getViewTreeObserver().removeOnPreDrawListener(this);
-            mHeader.setTranslationY(-mHeader.getCollapsedHeight() - mQsPeekHeight);
+            mHeader.setTranslationY(-mHeader.getCollapsedHeight() - mScrollLayoutPeekHeight);
             mHeader.animate()
                     .translationY(0f)
                     .setStartDelay(300)
                     .setDuration(StackStateAnimator.ANIMATION_DURATION_GO_TO_FULL_SHADE)
                     .setInterpolator(mFastOutSlowInInterpolator)
                     .start();
-            mQsContainer.setY(-mQsContainer.getHeight());
-            mQsContainerAnimator = ObjectAnimator.ofFloat(mQsContainer, View.TRANSLATION_Y,
-                    mQsContainer.getTranslationY(),
-                    mHeader.getCollapsedHeight() + mQsPeekHeight - mQsContainer.getHeight()
-                            - mQsContainer.getTop());
-            mQsContainerAnimator.setStartDelay(300);
-            mQsContainerAnimator.setDuration(StackStateAnimator.ANIMATION_DURATION_GO_TO_FULL_SHADE);
-            mQsContainerAnimator.setInterpolator(mFastOutSlowInInterpolator);
-            mQsContainerAnimator.addListener(mAnimateHeaderSlidingInListener);
-            mQsContainerAnimator.start();
-            mQsContainer.addOnLayoutChangeListener(mQsContainerAnimatorUpdater);
+            mScrollLayout.setY(-mScrollLayout.getHeight());
+            mScrollContainerAnimator = ObjectAnimator.ofFloat(mScrollLayout, View.TRANSLATION_Y,
+                    mScrollLayout.getTranslationY(),
+                    mHeader.getCollapsedHeight() + mScrollLayoutPeekHeight - mScrollLayout.getHeight()
+                            - mScrollLayout.getTop());
+            mScrollContainerAnimator.setStartDelay(300);
+            mScrollContainerAnimator.setDuration(StackStateAnimator.ANIMATION_DURATION_GO_TO_FULL_SHADE);
+            mScrollContainerAnimator.setInterpolator(mFastOutSlowInInterpolator);
+            mScrollContainerAnimator.addListener(mAnimateHeaderSlidingInListener);
+            mScrollContainerAnimator.start();
+            mScrollLayout.addOnLayoutChangeListener(mScrollContainerAnimatorUpdater);
             return true;
         }
     };
-    private boolean mQsScrimEnabled = true;
+    private boolean mScrollScrimEnabled = true;
 
     public StackScrollPanelView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -166,10 +163,10 @@ public class StackScrollPanelView extends PanelView implements
         } else {
             mHeader.setOnClickListener(this);
         }
-        mQsContainer = findViewById(R.id.quick_settings_container);
+        mScrollLayout = findViewById(R.id.stack_spring_layout);
         mScrollView = (ObservableScrollView) findViewById(R.id.scroll_view);
-        if (mQsContainer == null) {
-            mQsContainer = new RelativeLayout(getContext());
+        if (mScrollLayout == null) {
+            mScrollLayout = new RelativeLayout(getContext());
         }
         if (mScrollView == null) {
             mScrollView = new ObservableScrollView(getContext());
@@ -189,10 +186,10 @@ public class StackScrollPanelView extends PanelView implements
             mFastOutSlowInInterpolator = new LocalPathInterpolator(0.4f, 0, 0.2f, 1);
         }
 
-        mQsNavbarScrim = findViewById(R.id.qs_navbar_scrim);
+        mSCrollLayoutNavbarScrim = findViewById(R.id.scroll_navbar_scrim);
 
-        // recompute internal state when qspanel height changes
-        mQsContainer.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+        // recompute internal state when scroll panel height changes
+        mScrollLayout.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right,
                                        int bottom, int oldLeft, int oldTop, int oldRight,
@@ -209,7 +206,7 @@ public class StackScrollPanelView extends PanelView implements
         mBackgroundAlpha = Color.alpha(mBackgroundColor);
         setBackgroundColor(0);
         updateResources();
-        updateQsState();
+        updateScrollLayoutState();
     }
 
     public int getStatusBarHeight() {
@@ -228,7 +225,7 @@ public class StackScrollPanelView extends PanelView implements
                 R.dimen.stackitem_top_padding);
         mFlingAnimationUtils = new FlingAnimationUtils(getContext(), 0.4f);
         mStatusBarMinHeight = getStatusBarHeight();
-        mQsPeekHeight = getResources().getDimensionPixelSize(R.dimen.qs_peek_height);
+        mScrollLayoutPeekHeight = getResources().getDimensionPixelSize(R.dimen.scroll_peek_height);
     }
 
     public void updateResources() {
@@ -267,21 +264,21 @@ public class StackScrollPanelView extends PanelView implements
         super.onLayout(changed, left, top, right, bottom);
 
         // Calculate quick setting heights.
-        mQsMinExpansionHeight = mHeader.getCollapsedHeight() + mQsPeekHeight;
-        mQsMaxExpansionHeight = mHeader.getExpandedHeight() + mQsContainer.getHeight();
+        mScrollLayoutMinExpansionHeight = mHeader.getCollapsedHeight() + mScrollLayoutPeekHeight;
+        mScrollLayoutMaxExpansionHeight = mHeader.getExpandedHeight() + mScrollLayout.getHeight();
         positionClockAndNotifications();
-        if (mQsExpanded) {
-            if (mQsFullyExpanded) {
-                mQsExpansionHeight = mQsMaxExpansionHeight;
+        if (mScrollLayoutExpanded) {
+            if (mScrollLayoutFullyExpanded) {
+                mScrollLayoutExpansionHeight = mScrollLayoutMaxExpansionHeight;
                 requestScrollerTopPaddingUpdate(false /* animate */);
             }
         } else {
-            setQsExpansion(mQsMinExpansionHeight + mLastOverscroll);
+            setScrollLayoutExpansion(mScrollLayoutMinExpansionHeight + mLastOverscroll);
             mStackScroller.setStackHeight(getExpandedHeight());
             updateHeader();
         }
         mStackScroller.updateIsSmallScreen(
-                mHeader.getCollapsedHeight() + mQsPeekHeight);
+                mHeader.getCollapsedHeight() + mScrollLayoutPeekHeight);
     }
 
     /**
@@ -292,7 +289,7 @@ public class StackScrollPanelView extends PanelView implements
         boolean animate = mStackScroller.isAddOrRemoveAnimationPending();
         int stackScrollerPadding = 0;
         int bottom = mHeader.getCollapsedHeight();
-        stackScrollerPadding = bottom + mQsPeekHeight + mNotificationTopPadding;
+        stackScrollerPadding = bottom + mScrollLayoutPeekHeight + mNotificationTopPadding;
         mTopPaddingAdjustment = 0;
         mStackScroller.setIntrinsicPadding(stackScrollerPadding);
         requestScrollerTopPaddingUpdate(animate);
@@ -304,40 +301,40 @@ public class StackScrollPanelView extends PanelView implements
         requestLayout();
     }
 
-    public void setQsExpansionEnabled(boolean qsExpansionEnabled) {
-        mQsExpansionEnabled = qsExpansionEnabled;
-        mHeader.setClickable(qsExpansionEnabled);
+    public void setScrollLayoutExpansionEnabled(boolean scrollLayoutExpansionEnabled) {
+        mScrollLayoutExpansionEnabled = scrollLayoutExpansionEnabled;
+        mHeader.setClickable(scrollLayoutExpansionEnabled);
     }
 
     @Override
     public void resetViews() {
         mBlockTouches = false;
-        closeQs();
+        closeScrollLayout();
         mStackScroller.setOverScrollAmount(0f, true /* onTop */, false /* animate */,
                 true /* cancelAnimators */);
     }
 
-    public void closeQs() {
+    public void closeScrollLayout() {
         cancelAnimation();
-        setQsExpansion(mQsMinExpansionHeight);
+        setScrollLayoutExpansion(mScrollLayoutMinExpansionHeight);
     }
 
-    public void animateCloseQs() {
-        if (mQsExpansionAnimator != null) {
-            if (!mQsAnimatorExpand) {
+    public void animateCloseScrollLayout() {
+        if (mScrollLayoutExpansionAnimator != null) {
+            if (!mSCrollLayoutAnimatorExpand) {
                 return;
             }
-            float height = mQsExpansionHeight;
-            mQsExpansionAnimator.cancel();
-            setQsExpansion(height);
+            float height = mScrollLayoutExpansionHeight;
+            mScrollLayoutExpansionAnimator.cancel();
+            setScrollLayoutExpansion(height);
         }
         flingSettings(0 /* vel */, false);
     }
 
-    public void openQs() {
+    public void openScrollLayout() {
         cancelAnimation();
-        if (mQsExpansionEnabled) {
-            setQsExpansion(mQsMaxExpansionHeight);
+        if (mScrollLayoutExpansionEnabled) {
+            setScrollLayoutExpansion(mScrollLayoutMaxExpansionHeight);
         }
     }
 
@@ -365,10 +362,10 @@ public class StackScrollPanelView extends PanelView implements
                 if (shouldQuickSettingsIntercept(mInitialTouchX, mInitialTouchY, 0)) {
                     getParent().requestDisallowInterceptTouchEvent(true);
                 }
-                if (mQsExpansionAnimator != null) {
-                    onQsExpansionStarted();
-                    mInitialHeightOnTouch = mQsExpansionHeight;
-                    mQsTracking = true;
+                if (mScrollLayoutExpansionAnimator != null) {
+                    onScrollLayoutExpansionStarted();
+                    mInitialHeightOnTouch = mScrollLayoutExpansionHeight;
+                    mScrollLayoutTracking = true;
                     mIntercepting = false;
                     mStackScroller.removeLongPressCallback();
                 }
@@ -387,22 +384,22 @@ public class StackScrollPanelView extends PanelView implements
             case MotionEvent.ACTION_MOVE:
                 final float h = y - mInitialTouchY;
                 trackMovement(event);
-                if (mQsTracking) {
+                if (mScrollLayoutTracking) {
                     // Already tracking because onOverscrolled was called. We need to update here
                     // so we don't stop for a frame until the next touch event gets handled in
                     // onTouchEvent.
-                    setQsExpansion(h + mInitialHeightOnTouch);
+                    setScrollLayoutExpansion(h + mInitialHeightOnTouch);
                     trackMovement(event);
                     mIntercepting = false;
                     return true;
                 }
                 if (Math.abs(h) > mTouchSlop && Math.abs(h) > Math.abs(x - mInitialTouchX)
                         && shouldQuickSettingsIntercept(mInitialTouchX, mInitialTouchY, h)) {
-                    onQsExpansionStarted();
-                    mInitialHeightOnTouch = mQsExpansionHeight;
+                    onScrollLayoutExpansionStarted();
+                    mInitialHeightOnTouch = mScrollLayoutExpansionHeight;
                     mInitialTouchY = y;
                     mInitialTouchX = x;
-                    mQsTracking = true;
+                    mScrollLayoutTracking = true;
                     mIntercepting = false;
                     mStackScroller.removeLongPressCallback();
                     return true;
@@ -412,9 +409,9 @@ public class StackScrollPanelView extends PanelView implements
             case MotionEvent.ACTION_CANCEL:
             case MotionEvent.ACTION_UP:
                 trackMovement(event);
-                if (mQsTracking) {
-                    flingQsWithCurrentVelocity();
-                    mQsTracking = false;
+                if (mScrollLayoutTracking) {
+                    flingScrollLayoutWithCurrentVelocity();
+                    mScrollLayoutTracking = false;
                 }
                 mIntercepting = false;
                 break;
@@ -432,29 +429,29 @@ public class StackScrollPanelView extends PanelView implements
     public void requestDisallowInterceptTouchEvent(boolean disallowIntercept) {
 
         // Block request when interacting with the scroll view so we can still intercept the
-        // scrolling when QS is expanded.
+        // scrolling when ScrollLayout is expanded.
         if (mScrollView.isHandlingTouchEvent()) {
             return;
         }
         super.requestDisallowInterceptTouchEvent(disallowIntercept);
     }
 
-    private void flingQsWithCurrentVelocity() {
+    private void flingScrollLayoutWithCurrentVelocity() {
         float vel = getCurrentVelocity();
-        flingSettings(vel, flingExpandsQs(vel));
+        flingSettings(vel, flingExpandsScrollLayout(vel));
     }
 
-    private boolean flingExpandsQs(float vel) {
+    private boolean flingExpandsScrollLayout(float vel) {
         if (Math.abs(vel) < mFlingAnimationUtils.getMinVelocityPxPerSecond()) {
-            return getQsExpansionFraction() > 0.5f;
+            return getScrollLayoutExpansionFraction() > 0.5f;
         } else {
             return vel > 0;
         }
     }
 
-    private float getQsExpansionFraction() {
-        return Math.min(1f, (mQsExpansionHeight - mQsMinExpansionHeight)
-                / (getTempQsMaxExpansion() - mQsMinExpansionHeight));
+    private float getScrollLayoutExpansionFraction() {
+        return Math.min(1f, (mScrollLayoutExpansionHeight - mScrollLayoutMinExpansionHeight)
+                / (getTempScrollLayoutMaxExpansion() - mScrollLayoutMinExpansionHeight));
     }
 
     @Override
@@ -467,37 +464,37 @@ public class StackScrollPanelView extends PanelView implements
             return true;
         }
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN && getExpandedFraction() == 1f
-                && !mQsExpanded && mQsExpansionEnabled) {
+                && !mScrollLayoutExpanded && mScrollLayoutExpansionEnabled) {
 
-            // Down in the empty area while fully expanded - go to QS.
-            mQsTracking = true;
-            mConflictingQsExpansionGesture = true;
-            onQsExpansionStarted();
-            mInitialHeightOnTouch = mQsExpansionHeight;
+            // Down in the empty area while fully expanded - go to ScrollLayout.
+            mScrollLayoutTracking = true;
+            mConflictingScrollLayoutExpansionGesture = true;
+            onScrollLayoutExpansionStarted();
+            mInitialHeightOnTouch = mScrollLayoutExpansionHeight;
             mInitialTouchY = event.getX();
             mInitialTouchX = event.getY();
         }
         if (mExpandedHeight != 0) {
-            handleQsDown(event);
+            handleScrollLayoutDown(event);
         }
-        if (!mTwoFingerQsExpand && mQsTracking) {
-            onQsTouch(event);
-            if (!mConflictingQsExpansionGesture) {
+        if (!mTwoFingerScrollLayoutExpand && mScrollLayoutTracking) {
+            onScrollLayoutTouch(event);
+            if (!mConflictingScrollLayoutExpansionGesture) {
                 return true;
             }
         }
         if (event.getActionMasked() == MotionEvent.ACTION_CANCEL
                 || event.getActionMasked() == MotionEvent.ACTION_UP) {
-            mConflictingQsExpansionGesture = false;
+            mConflictingScrollLayoutExpansionGesture = false;
         }
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN && mExpandedHeight == 0
-                && mQsExpansionEnabled) {
-            mTwoFingerQsExpandPossible = true;
+                && mScrollLayoutExpansionEnabled) {
+            mTwoFingerScrollLayoutExpandPossible = true;
         }
-        if (mTwoFingerQsExpandPossible && event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
+        if (mTwoFingerScrollLayoutExpandPossible && event.getActionMasked() == MotionEvent.ACTION_POINTER_DOWN
                 && event.getPointerCount() == 2
                 && event.getY(event.getActionIndex()) < mStatusBarMinHeight) {
-            mTwoFingerQsExpand = true;
+            mTwoFingerScrollLayoutExpand = true;
             requestPanelHeightUpdate();
 
             // Normally, we start listening when the panel is expanded, but here we need to start
@@ -508,18 +505,18 @@ public class StackScrollPanelView extends PanelView implements
         return true;
     }
 
-    private boolean isInQsArea(float x, float y) {
+    private boolean isInScrollLayoutArea(float x, float y) {
         return (x >= mScrollView.getLeft() && x <= mScrollView.getRight()) &&
                 (y <= mStackScroller.getBottomMostNotificationBottom()
-                         || y <= mQsContainer.getY() + mQsContainer.getHeight());
+                         || y <= mScrollLayout.getY() + mScrollLayout.getHeight());
     }
 
-    private void handleQsDown(MotionEvent event) {
+    private void handleScrollLayoutDown(MotionEvent event) {
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN
                 && shouldQuickSettingsIntercept(event.getX(), event.getY(), -1)) {
-            mQsTracking = true;
-            onQsExpansionStarted();
-            mInitialHeightOnTouch = mQsExpansionHeight;
+            mScrollLayoutTracking = true;
+            onScrollLayoutExpansionStarted();
+            mInitialHeightOnTouch = mScrollLayoutExpansionHeight;
             mInitialTouchY = event.getX();
             mInitialTouchX = event.getY();
             // If we interrupt an expansion gesture here, make sure to update the state correctly.
@@ -533,8 +530,8 @@ public class StackScrollPanelView extends PanelView implements
     protected boolean flingExpands(float vel, float vectorVel) {
         boolean expands = super.flingExpands(vel, vectorVel);
 
-        // If we are already running a QS expansion, make sure that we keep the panel open.
-        if (mQsExpansionAnimator != null) {
+        // If we are already running a ScrollLayout expansion, make sure that we keep the panel open.
+        if (mScrollLayoutExpansionAnimator != null) {
             expands = true;
         }
         return expands;
@@ -545,7 +542,7 @@ public class StackScrollPanelView extends PanelView implements
         return false;
     }
 
-    private void onQsTouch(MotionEvent event) {
+    private void onScrollLayoutTouch(MotionEvent event) {
         int pointerIndex = event.findPointerIndex(mTrackingPointer);
         if (pointerIndex < 0) {
             pointerIndex = 0;
@@ -556,11 +553,11 @@ public class StackScrollPanelView extends PanelView implements
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                mQsTracking = true;
+                mScrollLayoutTracking = true;
                 mInitialTouchY = y;
                 mInitialTouchX = x;
-                onQsExpansionStarted();
-                mInitialHeightOnTouch = mQsExpansionHeight;
+                onScrollLayoutExpansionStarted();
+                mInitialHeightOnTouch = mScrollLayoutExpansionHeight;
                 initVelocityTracker();
                 trackMovement(event);
                 break;
@@ -573,7 +570,7 @@ public class StackScrollPanelView extends PanelView implements
                     final float newY = event.getY(newIndex);
                     final float newX = event.getX(newIndex);
                     mTrackingPointer = event.getPointerId(newIndex);
-                    mInitialHeightOnTouch = mQsExpansionHeight;
+                    mInitialHeightOnTouch = mScrollLayoutExpansionHeight;
                     mInitialTouchY = newY;
                     mInitialTouchX = newX;
                 }
@@ -581,21 +578,21 @@ public class StackScrollPanelView extends PanelView implements
 
             case MotionEvent.ACTION_MOVE:
                 final float h = y - mInitialTouchY;
-                setQsExpansion(h + mInitialHeightOnTouch);
+                setScrollLayoutExpansion(h + mInitialHeightOnTouch);
                 trackMovement(event);
                 break;
 
             case MotionEvent.ACTION_UP:
             case MotionEvent.ACTION_CANCEL:
-                mQsTracking = false;
+                mScrollLayoutTracking = false;
                 mTrackingPointer = -1;
                 trackMovement(event);
-                float fraction = getQsExpansionFraction();
+                float fraction = getScrollLayoutExpansionFraction();
                 if (mEnableOverScroll) {
                     flingSettings(getCurrentVelocity(), false);
                 } else if ((fraction != 0f || y >= mInitialTouchY)
                         && (fraction != 1f || y <= mInitialTouchY)) {
-                    flingQsWithCurrentVelocity();
+                    flingScrollLayoutWithCurrentVelocity();
                 } else {
                     mScrollYOverride = -1;
                 }
@@ -611,61 +608,61 @@ public class StackScrollPanelView extends PanelView implements
     public void onOverscrolled(float lastTouchX, float lastTouchY, int amount) {
         if (mIntercepting && shouldQuickSettingsIntercept(lastTouchX, lastTouchY,
                 -1 /* yDiff: Not relevant here */)) {
-            onQsExpansionStarted(amount);
-            mInitialHeightOnTouch = mQsExpansionHeight;
+            onScrollLayoutExpansionStarted(amount);
+            mInitialHeightOnTouch = mScrollLayoutExpansionHeight;
             mInitialTouchY = mLastTouchY;
             mInitialTouchX = mLastTouchX;
-            mQsTracking = true;
+            mScrollLayoutTracking = true;
         }
     }
 
     @Override
     public void onOverscrollTopChanged(float amount, boolean isRubberbanded) {
         cancelAnimation();
-        if (!mQsExpansionEnabled) {
+        if (!mScrollLayoutExpansionEnabled) {
             amount = 0f;
         }
         float rounded = amount >= 1f ? amount : 0f;
         mStackScrollerOverscrolling = rounded != 0f && isRubberbanded;
-        mQsExpansionFromOverscroll = rounded != 0f;
+        mScrollLayoutExpansionFromOverscroll = rounded != 0f;
         mLastOverscroll = rounded;
-        updateQsState();
-        setQsExpansion(mQsMinExpansionHeight + rounded);
+        updateScrollLayoutState();
+        setScrollLayoutExpansion(mScrollLayoutMinExpansionHeight + rounded);
     }
 
     @Override
     public void flingTopOverscroll(float velocity, boolean open) {
         mLastOverscroll = 0f;
-        setQsExpansion(mQsExpansionHeight);
-        flingSettings(!mQsExpansionEnabled && open ? 0f : velocity, open && mQsExpansionEnabled,
+        setScrollLayoutExpansion(mScrollLayoutExpansionHeight);
+        flingSettings(!mScrollLayoutExpansionEnabled && open ? 0f : velocity, open && mScrollLayoutExpansionEnabled,
                 new Runnable() {
                     @Override
                     public void run() {
                         mStackScrollerOverscrolling = false;
-                        mQsExpansionFromOverscroll = false;
-                        updateQsState();
+                        mScrollLayoutExpansionFromOverscroll = false;
+                        updateScrollLayoutState();
                     }
                 });
     }
 
-    private void onQsExpansionStarted() {
-        onQsExpansionStarted(0);
+    private void onScrollLayoutExpansionStarted() {
+        onScrollLayoutExpansionStarted(0);
     }
 
-    private void onQsExpansionStarted(int overscrollAmount) {
+    private void onScrollLayoutExpansionStarted(int overscrollAmount) {
         cancelAnimation();
 
         // Reset scroll position and apply that position to the expanded height.
-        float height = mQsExpansionHeight - mScrollView.getScrollY() - overscrollAmount;
+        float height = mScrollLayoutExpansionHeight - mScrollView.getScrollY() - overscrollAmount;
         if (mScrollView.getScrollY() != 0) {
             mScrollYOverride = mScrollView.getScrollY();
         }
         mScrollView.scrollTo(0, 0);
-        setQsExpansion(height);
+        setScrollLayoutExpansion(height);
     }
 
     public void setBarState(boolean goingToFullShade) {
-        updateQsState();
+        updateScrollLayoutState();
         if (goingToFullShade) {
             animateHeaderSlidingIn();
         }
@@ -677,51 +674,53 @@ public class StackScrollPanelView extends PanelView implements
 
     }
 
-    public void updateQsState() {
+    public void updateScrollLayoutState() {
         mHeader.setVisibility(View.VISIBLE);
-        mHeader.setExpanded((mQsExpanded && !mStackScrollerOverscrolling));
-        mStackScroller.setScrollingEnabled(!mQsExpanded || mQsExpansionFromOverscroll);
-        mScrollView.setTouchEnabled(mQsExpanded);
-        if (mQsNavbarScrim != null) {
-            mQsNavbarScrim.setVisibility(mQsExpanded && !mStackScrollerOverscrolling && mQsScrimEnabled
+        mHeader.setExpanded((mScrollLayoutExpanded && !mStackScrollerOverscrolling));
+        mStackScroller.setScrollingEnabled(!mScrollLayoutExpanded || mScrollLayoutExpansionFromOverscroll);
+        mScrollView.setTouchEnabled(mScrollLayoutExpanded);
+        if (mSCrollLayoutNavbarScrim != null) {
+            mSCrollLayoutNavbarScrim
+                    .setVisibility(mScrollLayoutExpanded && !mStackScrollerOverscrolling && mScrollScrimEnabled
                     ? View.VISIBLE
                     : View.INVISIBLE);
         }
     }
 
-    private void setQsExpansion(float height) {
-        height = Math.min(Math.max(height, mQsMinExpansionHeight), mQsMaxExpansionHeight);
-        mQsFullyExpanded = height == mQsMaxExpansionHeight;
-        if (height > mQsMinExpansionHeight && !mQsExpanded && !mStackScrollerOverscrolling) {
-            setQsExpanded(true);
-        } else if (height <= mQsMinExpansionHeight && mQsExpanded) {
-            setQsExpanded(false);
+    private void setScrollLayoutExpansion(float height) {
+        height = Math.min(Math.max(height, mScrollLayoutMinExpansionHeight), mScrollLayoutMaxExpansionHeight);
+        mScrollLayoutFullyExpanded = height == mScrollLayoutMaxExpansionHeight;
+        if (height > mScrollLayoutMinExpansionHeight && !mScrollLayoutExpanded && !mStackScrollerOverscrolling) {
+            setScrollLayoutExpanded(true);
+        } else if (height <= mScrollLayoutMinExpansionHeight && mScrollLayoutExpanded) {
+            setScrollLayoutExpanded(false);
         }
-        mQsExpansionHeight = height;
+        mScrollLayoutExpansionHeight = height;
         mHeader.setExpansion(getHeaderExpansionFraction());
-        setQsTranslation(height);
+        setScrollLayoutTranslation(height);
         requestScrollerTopPaddingUpdate(false /* animate */);
-        if (mQsNavbarScrim != null && mQsExpanded && !mStackScrollerOverscrolling && mQsScrimEnabled) {
-            mQsNavbarScrim.setAlpha(getQsExpansionFraction());
+        if (mSCrollLayoutNavbarScrim != null && mScrollLayoutExpanded && !mStackScrollerOverscrolling
+                && mScrollScrimEnabled) {
+            mSCrollLayoutNavbarScrim.setAlpha(getScrollLayoutExpansionFraction());
         }
     }
 
     private float getHeaderExpansionFraction() {
-        return getQsExpansionFraction();
+        return getScrollLayoutExpansionFraction();
     }
 
-    private void setQsTranslation(float height) {
+    private void setScrollLayoutTranslation(float height) {
         if (!mHeaderAnimatingIn) {
-            mQsContainer.setY(height - mQsContainer.getHeight() + getHeaderTranslation());
+            mScrollLayout.setY(height - mScrollLayout.getHeight() + getHeaderTranslation());
         }
     }
 
-    private float calculateQsTopPadding() {
-        return mQsExpansionHeight;
+    private float calculateScrollLayoutTopPadding() {
+        return mScrollLayoutExpansionHeight;
     }
 
     private void requestScrollerTopPaddingUpdate(boolean animate) {
-        mStackScroller.updateTopPadding(calculateQsTopPadding(),
+        mStackScroller.updateTopPadding(calculateScrollLayoutTopPadding(),
                 mScrollView.getScrollY(),
                 mAnimateNextTopPaddingChange || animate);
         mAnimateNextTopPaddingChange = false;
@@ -751,8 +750,8 @@ public class StackScrollPanelView extends PanelView implements
     }
 
     private void cancelAnimation() {
-        if (mQsExpansionAnimator != null) {
-            mQsExpansionAnimator.cancel();
+        if (mScrollLayoutExpansionAnimator != null) {
+            mScrollLayoutExpansionAnimator.cancel();
         }
     }
 
@@ -761,8 +760,8 @@ public class StackScrollPanelView extends PanelView implements
     }
 
     private void flingSettings(float vel, boolean expand, final Runnable onFinishRunnable) {
-        float target = expand ? mQsMaxExpansionHeight : mQsMinExpansionHeight;
-        if (target == mQsExpansionHeight) {
+        float target = expand ? mScrollLayoutMaxExpansionHeight : mScrollLayoutMinExpansionHeight;
+        if (target == mScrollLayoutExpansionHeight) {
             mScrollYOverride = -1;
             if (onFinishRunnable != null) {
                 onFinishRunnable.run();
@@ -770,12 +769,12 @@ public class StackScrollPanelView extends PanelView implements
             return;
         }
         mScrollView.setBlockFlinging(true);
-        ValueAnimator animator = ValueAnimator.ofFloat(mQsExpansionHeight, target);
-        mFlingAnimationUtils.apply(animator, mQsExpansionHeight, target, vel);
+        ValueAnimator animator = ValueAnimator.ofFloat(mScrollLayoutExpansionHeight, target);
+        mFlingAnimationUtils.apply(animator, mScrollLayoutExpansionHeight, target, vel);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
-                setQsExpansion((Float) animation.getAnimatedValue());
+                setScrollLayoutExpansion((Float) animation.getAnimatedValue());
             }
         });
         animator.addListener(new AnimatorListenerAdapter() {
@@ -783,29 +782,29 @@ public class StackScrollPanelView extends PanelView implements
             public void onAnimationEnd(Animator animation) {
                 mScrollView.setBlockFlinging(false);
                 mScrollYOverride = -1;
-                mQsExpansionAnimator = null;
+                mScrollLayoutExpansionAnimator = null;
                 if (onFinishRunnable != null) {
                     onFinishRunnable.run();
                 }
             }
         });
         animator.start();
-        mQsExpansionAnimator = animator;
-        mQsAnimatorExpand = expand;
+        mScrollLayoutExpansionAnimator = animator;
+        mSCrollLayoutAnimatorExpand = expand;
     }
 
     /**
      * @return Whether we should intercept a gesture to open Quick Settings.
      */
     private boolean shouldQuickSettingsIntercept(float x, float y, float yDiff) {
-        if (!mQsExpansionEnabled) {
+        if (!mScrollLayoutExpansionEnabled) {
             return false;
         }
         View header = mHeader;
         boolean onHeader = x >= header.getLeft() && x <= header.getRight()
                 && y >= header.getTop() && y <= header.getBottom();
-        if (mQsExpanded) {
-            return onHeader || (mScrollView.isScrolledToBottom() && yDiff < 0) && isInQsArea(x, y);
+        if (mScrollLayoutExpanded) {
+            return onHeader || (mScrollView.isScrolledToBottom() && yDiff < 0) && isInScrollLayoutArea(x, y);
         } else {
             return onHeader;
         }
@@ -824,13 +823,14 @@ public class StackScrollPanelView extends PanelView implements
     protected int getMaxPanelHeight() {
         int min = mStatusBarMinHeight;
         if (mStackScroller.getNotGoneChildCount() == 0) {
-            int minHeight = (int) ((mQsMinExpansionHeight + getOverExpansionAmount())
+            int minHeight = (int) ((mScrollLayoutMinExpansionHeight + getOverExpansionAmount())
                                            * HEADER_RUBBERBAND_FACTOR);
             min = Math.max(min, minHeight);
         }
         int maxHeight;
-        if (mTwoFingerQsExpand || mQsExpanded || mIsExpanding && mQsExpandedWhenExpandingStarted) {
-            maxHeight = Math.max(calculatePanelHeightQsExpanded(), calculatePanelHeightShade());
+        if (mTwoFingerScrollLayoutExpand || mScrollLayoutExpanded
+                || mIsExpanding && mScrollLayoutExpandedWhenExpandingStarted) {
+            maxHeight = Math.max(calculatePanelHeightScrollLayoutExpanded(), calculatePanelHeightShade());
         } else {
             maxHeight = calculatePanelHeightShade();
         }
@@ -839,25 +839,26 @@ public class StackScrollPanelView extends PanelView implements
     }
 
     private boolean isInSettings() {
-        return mQsExpanded;
+        return mScrollLayoutExpanded;
     }
 
     @Override
     protected void onHeightUpdated(float expandedHeight) {
-        if (!mQsExpanded) {
+        if (!mScrollLayoutExpanded) {
             positionClockAndNotifications();
         }
-        if (mTwoFingerQsExpand || mQsExpanded && !mQsTracking && mQsExpansionAnimator == null
-                && !mQsExpansionFromOverscroll) {
-            float panelHeightQsCollapsed = mStackScroller.getIntrinsicPadding()
+        if (mTwoFingerScrollLayoutExpand || mScrollLayoutExpanded && !mScrollLayoutTracking
+                && mScrollLayoutExpansionAnimator == null
+                && !mScrollLayoutExpansionFromOverscroll) {
+            float panelHeightScrollLayoutCollapsed = mStackScroller.getIntrinsicPadding()
                     + mStackScroller.getMinStackHeight()
                     + mStackScroller.getNotificationTopPadding();
-            float panelHeightQsExpanded = calculatePanelHeightQsExpanded();
-            float t = (expandedHeight - panelHeightQsCollapsed)
-                    / (panelHeightQsExpanded - panelHeightQsCollapsed);
+            float panelHeightScrollLayoutExpanded = calculatePanelHeightScrollLayoutExpanded();
+            float t = (expandedHeight - panelHeightScrollLayoutCollapsed)
+                    / (panelHeightScrollLayoutExpanded - panelHeightScrollLayoutCollapsed);
 
-            setQsExpansion(mQsMinExpansionHeight
-                    + t * (getTempQsMaxExpansion() - mQsMinExpansionHeight));
+            setScrollLayoutExpansion(mScrollLayoutMinExpansionHeight
+                    + t * (getTempScrollLayoutMaxExpansion() - mScrollLayoutMinExpansionHeight));
         }
         mStackScroller.setStackHeight(expandedHeight);
         updateHeader();
@@ -868,15 +869,15 @@ public class StackScrollPanelView extends PanelView implements
     }
 
     /**
-     * @return a temporary override of {@link #mQsMaxExpansionHeight}, which is needed when
-     * collapsing QS / the panel when QS was scrolled
+     * @return a temporary override of {@link #mScrollLayoutMaxExpansionHeight}, which is needed when
+     * collapsing ScrollLayout / the panel when ScrollLayout was scrolled
      */
-    private int getTempQsMaxExpansion() {
-        int qsTempMaxExpansion = mQsMaxExpansionHeight;
+    private int getTempScrollLayoutMaxExpansion() {
+        int scrollLayoutTempMaxExpansion = mScrollLayoutMaxExpansionHeight;
         if (mScrollYOverride != -1) {
-            qsTempMaxExpansion -= mScrollYOverride;
+            scrollLayoutTempMaxExpansion -= mScrollYOverride;
         }
-        return qsTempMaxExpansion;
+        return scrollLayoutTempMaxExpansion;
     }
 
     private int calculatePanelHeightShade() {
@@ -887,14 +888,14 @@ public class StackScrollPanelView extends PanelView implements
         return maxHeight;
     }
 
-    private int calculatePanelHeightQsExpanded() {
+    private int calculatePanelHeightScrollLayoutExpanded() {
         float notificationHeight = mStackScroller.getHeight()
                 - mStackScroller.getEmptyBottomMargin()
                 - mStackScroller.getTopPadding();
-        float totalHeight = mQsMaxExpansionHeight + notificationHeight
+        float totalHeight = mScrollLayoutMaxExpansionHeight + notificationHeight
                 + mStackScroller.getNotificationTopPadding();
         if (totalHeight > mStackScroller.getHeight()) {
-            float fullyCollapsedHeight = mQsMaxExpansionHeight
+            float fullyCollapsedHeight = mScrollLayoutMaxExpansionHeight
                     + mStackScroller.getMinStackHeight()
                     + mStackScroller.getNotificationTopPadding()
                     - getScrollViewScrollY();
@@ -913,7 +914,7 @@ public class StackScrollPanelView extends PanelView implements
 
     private void updateNotificationTranslucency() {
         float alpha = (getNotificationsTopY() + mStackScroller.getItemHeight())
-                / (mQsMinExpansionHeight + mStackScroller.getBottomStackPeekSize()
+                / (mScrollLayoutMinExpansionHeight + mStackScroller.getBottomStackPeekSize()
                            - mStackScroller.getCollapseSecondCardPadding());
         alpha = Math.max(0, Math.min(alpha, 1));
         alpha = (float) Math.pow(alpha, 0.75);
@@ -957,15 +958,15 @@ public class StackScrollPanelView extends PanelView implements
         if (!mHeaderAnimatingIn) {
             mHeader.setTranslationY(getHeaderTranslation());
         }
-        setQsTranslation(mQsExpansionHeight);
+        setScrollLayoutTranslation(mScrollLayoutExpansionHeight);
     }
 
     private float getHeaderTranslation() {
         if (mStackScroller.getNotGoneChildCount() == 0) {
-            if (mExpandedHeight / HEADER_RUBBERBAND_FACTOR >= mQsMinExpansionHeight) {
+            if (mExpandedHeight / HEADER_RUBBERBAND_FACTOR >= mScrollLayoutMinExpansionHeight) {
                 return 0;
             } else {
-                return mExpandedHeight / HEADER_RUBBERBAND_FACTOR - mQsMinExpansionHeight;
+                return mExpandedHeight / HEADER_RUBBERBAND_FACTOR - mScrollLayoutMinExpansionHeight;
             }
         }
         return Math.min(0, mStackScroller.getTranslationY()) / HEADER_RUBBERBAND_FACTOR;
@@ -983,9 +984,9 @@ public class StackScrollPanelView extends PanelView implements
         super.onExpandingStarted();
         mStackScroller.onExpansionStarted();
         mIsExpanding = true;
-        mQsExpandedWhenExpandingStarted = mQsExpanded;
-        if (mQsExpanded) {
-            onQsExpansionStarted();
+        mScrollLayoutExpandedWhenExpandingStarted = mScrollLayoutExpanded;
+        if (mScrollLayoutExpanded) {
+            onScrollLayoutExpansionStarted();
         }
     }
 
@@ -1000,8 +1001,8 @@ public class StackScrollPanelView extends PanelView implements
         } else {
             setListening(true);
         }
-        mTwoFingerQsExpand = false;
-        mTwoFingerQsExpandPossible = false;
+        mTwoFingerScrollLayoutExpand = false;
+        mTwoFingerScrollLayoutExpandPossible = false;
     }
 
     private void setListening(boolean listening) {
@@ -1016,7 +1017,7 @@ public class StackScrollPanelView extends PanelView implements
 
     @Override
     protected void setOverExpansion(float overExpansion, boolean isPixels) {
-        if (mConflictingQsExpansionGesture || mTwoFingerQsExpand) {
+        if (mConflictingScrollLayoutExpansionGesture || mTwoFingerScrollLayoutExpand) {
             return;
         }
         mStackScroller.setOnHeightChangedListener(null);
@@ -1033,8 +1034,8 @@ public class StackScrollPanelView extends PanelView implements
     @Override
     protected void onTrackingStarted() {
         super.onTrackingStarted();
-        if (mQsExpanded) {
-            mTwoFingerQsExpand = true;
+        if (mScrollLayoutExpanded) {
+            mTwoFingerScrollLayoutExpand = true;
         }
     }
 
@@ -1052,7 +1053,7 @@ public class StackScrollPanelView extends PanelView implements
 
         // Block update if we are in quick settings and just the top padding changed
         // (i.e. view == null).
-        if (view == null && mQsExpanded) {
+        if (view == null && mScrollLayoutExpanded) {
             return;
         }
         requestPanelHeightUpdate();
@@ -1064,7 +1065,7 @@ public class StackScrollPanelView extends PanelView implements
 
     @Override
     public void onScrollChanged() {
-        if (mQsExpanded) {
+        if (mScrollLayoutExpanded) {
             requestScrollerTopPaddingUpdate(false /* animate */);
             requestPanelHeightUpdate();
         }
@@ -1078,10 +1079,10 @@ public class StackScrollPanelView extends PanelView implements
     @Override
     public void onClick(View v) {
         if (v == mHeader) {
-            onQsExpansionStarted();
-            if (mQsExpanded) {
+            onScrollLayoutExpansionStarted();
+            if (mScrollLayoutExpanded) {
                 flingSettings(0 /* vel */, false /* expand */);
-            } else if (mQsExpansionEnabled) {
+            } else if (mScrollLayoutExpansionEnabled) {
                 flingSettings(0 /* vel */, true /* expand */);
             }
         }
@@ -1102,13 +1103,13 @@ public class StackScrollPanelView extends PanelView implements
         if (mStackScroller.getNotGoneChildCount() > 0) {
             return mStackScroller.getPeekHeight();
         } else {
-            return mQsMinExpansionHeight * HEADER_RUBBERBAND_FACTOR;
+            return mScrollLayoutMinExpansionHeight * HEADER_RUBBERBAND_FACTOR;
         }
     }
 
     @Override
     protected float getCannedFlingDurationFactor() {
-        if (mQsExpanded) {
+        if (mScrollLayoutExpanded) {
             return 0.7f;
         } else {
             return 0.6f;
@@ -1117,18 +1118,18 @@ public class StackScrollPanelView extends PanelView implements
 
     @Override
     protected boolean isTrackingBlocked() {
-        return mConflictingQsExpansionGesture && mQsExpanded;
+        return mConflictingScrollLayoutExpansionGesture && mScrollLayoutExpanded;
     }
 
-    public boolean isQsExpanded() {
-        return mQsExpanded;
+    public boolean isScrollLayoutExpanded() {
+        return mScrollLayoutExpanded;
     }
 
-    private void setQsExpanded(boolean expanded) {
-        boolean changed = mQsExpanded != expanded;
+    private void setScrollLayoutExpanded(boolean expanded) {
+        boolean changed = mScrollLayoutExpanded != expanded;
         if (changed) {
-            mQsExpanded = expanded;
-            updateQsState();
+            mScrollLayoutExpanded = expanded;
+            updateScrollLayoutState();
             requestPanelHeightUpdate();
             mStackScroller.setInterceptDelegateEnabled(expanded);
         }
@@ -1139,11 +1140,11 @@ public class StackScrollPanelView extends PanelView implements
         return true;
     }
 
-    public void setQsScrimEnabled(boolean qsScrimEnabled) {
-        boolean changed = mQsScrimEnabled != qsScrimEnabled;
-        mQsScrimEnabled = qsScrimEnabled;
+    public void setScrollLayoutScrimEnabled(boolean scrollLayoutScrimEnabled) {
+        boolean changed = mScrollScrimEnabled != scrollLayoutScrimEnabled;
+        mScrollScrimEnabled = scrollLayoutScrimEnabled;
         if (changed) {
-            updateQsState();
+            updateScrollLayoutState();
         }
     }
 
