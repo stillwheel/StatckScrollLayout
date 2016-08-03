@@ -52,11 +52,59 @@ adapter的实现逻辑主要在StackScrollLayout.java与StackViewBaseAdapter.jav
 3.核心代码
 第一次点击屏幕时,由于此时view未展开，Touch事件首先被父类PanelView拦截处理：
 代码：PanelView的ActionDown中return true拦截该事件;
-然后onTouchEvent的ActionMove方法：此处主要处理下拉时刷新StackView高度
-final float newHeight = Math.max(0, h + mInitialOffsetOnTouch);
-setExpandedHeightInternal(newHeight);
-setExpandedHeightInternal->onHeightUpdated->mStackScroller.setStackHeight(expandedHeight),这里最终实现下拉展开效果
 
 
+Action_Down ---> (mExpandedHeight == 0 || PanelView正在进行展开或收合动画) Touch事件首先被父类PanelView拦截处理： 
+    然后onTouchEvent的ActionMove方法：此处主要处理下拉时更新View的状态
+    final float newHeight = Math.max(0, h + mInitialOffsetOnTouch);
+    setExpandedHeightInternal(newHeight);
+    setExpandedHeightInternal->onHeightUpdated->mStackScroller.setStackHeight(expandedHeight),这里最终实现下拉展开效果
 
+Action_Down ---> (PanelView已经全部展开时) 最后会交友StackScrollLayout的onScrollTouch函数处理
+overScrollBy:随手指拖拽
+overScrollDown:向下拖拽到达顶部时，继续向下拖拽
+overScrollUp:向上拖拽到达底部时，继续向上拖拽
+setOverScrollAmount ---> onOverScrolled --> applyCurrentState ---> StackScrollState的apply()方法,
+apply方法是处理view的层叠效果的
+
+updateChildren() ->StackScrollAlgorithm的getStackScrollState ---> 调用findNumberOfItemsInTopStackAndUpdateState计算即将被完全遮挡的view 的index
+然后再调用updatePositionsForState方法计算每个View的currentYPosition = childViewState.yTranslation + childHeight + mPaddingBetweenElements;
+
+
+4.版本兼容问题
+    API21一下不支持elevation,所以API21以下的View层进行了下处理:
+    StackScrollLayout.java
+    @Override
+    protected void dispatchDraw(Canvas canvas) { // 重绘View的涂层
+        if (Define.SDK_INT < 21) {
+            for (int i = getChildCount() - 1; i >= 0; i--) {
+                View child = getChildAt(i);
+                drawChild(canvas, child, getDrawingTime());
+            }
+        } else {
+            super.dispatchDraw(canvas);
+        }
+    }
+    ExpandableView.java
+    @Override
+        protected void dispatchDraw(Canvas canvas) { // 重绘View边缘的阴影
+            if (Define.SDK_INT < 21) {
+                super.dispatchDraw(canvas);
+    
+                canvas.save();
+                Paint paint = new Paint();
+                paint.setColor(Color.TRANSPARENT);
+                paint.setAlpha(currentAlpha);
+                paint.setStrokeWidth(0);
+    
+                Shader shader = new LinearGradient(0, getHeight() - shadowRadius, 0, getHeight(),
+                        new int[] {shadowStartColor, shadowEndColor}, null, Shader.TileMode.MIRROR);
+                paint.setShader(shader);
+                canvas.drawRect(0, getHeight() - shadowRadius, getWidth(), getHeight(), paint);
+    
+                canvas.restore();
+            } else {
+                super.dispatchDraw(canvas);
+            }
+        }
 ``````````
