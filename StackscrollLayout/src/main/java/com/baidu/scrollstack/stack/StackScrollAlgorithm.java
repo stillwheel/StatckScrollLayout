@@ -403,8 +403,6 @@ public class StackScrollAlgorithm {
                 algorithmState.visibleChildren.get(i - 1).setShadowAlpha(currentYPosition - preYPosition, childHeight);
             }
 
-            Log.i("currentYPosition" + index + "end", "scrollOffset =" + scrollOffset
-                    + ", scrollY " + algorithmState.scrollY + ", currentYPosition = " + currentYPosition + ", preYPosition " + preYPosition);
             yPositionInScrollView = yPositionInScrollViewAfterElement;
 
             childViewState.yTranslation += mTopPadding;

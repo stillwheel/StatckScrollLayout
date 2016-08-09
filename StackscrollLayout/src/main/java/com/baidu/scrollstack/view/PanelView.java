@@ -3,11 +3,11 @@ package com.baidu.scrollstack.view;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 
+import com.baidu.scrollstack.R;
 import com.baidu.scrollstack.uitl.Define;
 import com.baidu.scrollstack.uitl.FlingAnimationUtils;
 import com.baidu.scrollstack.uitl.LocalPathInterpolator;
 import com.baidu.scrollstack.uitl.VelocityTracker;
-import com.baidu.scrollstack.R;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -16,7 +16,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -29,16 +28,14 @@ import android.widget.FrameLayout;
 public abstract class PanelView extends FrameLayout {
     public static final boolean DEBUG = true;
     public static final String TAG = PanelView.class.getSimpleName();
-
-    private final void logf(String fmt, Object... args) {
-        Log.v(TAG, (mViewName != null ? (mViewName + ": ") : "") + String.format(fmt, args));
-    }
-
+    protected float mExpandedHeight = 0;
+    protected boolean mTracking;
+    protected int mTouchSlop;
+    protected boolean mHintAnimationRunning;
     private float mPeekHeight;
     private float mHintDistance;
     private float mInitialOffsetOnTouch;
     private float mExpandedFraction = 0;
-    protected float mExpandedHeight = 0;
     private boolean mPanelClosedOnDown;
     private boolean mHasLayoutedSinceDown;
     private float mUpdateFlingVelocity;
@@ -46,32 +43,26 @@ public abstract class PanelView extends FrameLayout {
     private boolean mPeekTouching;
     private boolean mJustPeeked;
     private boolean mClosing;
-    protected boolean mTracking;
     private boolean mTouchSlopExceeded;
     private int mTrackingPointer;
-    protected int mTouchSlop;
-    protected boolean mHintAnimationRunning;
     private boolean mOverExpandedBeforeFling;
     private ValueAnimator mHeightAnimator;
     private ObjectAnimator mPeekAnimator;
     private VelocityTracker mVelocityTracker;
     private FlingAnimationUtils mFlingAnimationUtils;
     private OnExpandListener onExpandListener;
-
+    private int delay = 120;
     /**
      * Whether an instant expand request is currently pending and we are just waiting for layout.
      */
     private boolean mInstantExpanding;
-
     private String mViewName;
     private float mInitialTouchY;
     private float mInitialTouchX;
     private boolean mTouchDisabled;
-
     private Interpolator mLinearOutSlowInInterpolator;
     private Interpolator mFastOutSlowInInterpolator;
     private Interpolator mBounceInterpolator;
-
     private boolean mPeekPending;
     private boolean mCollapseAfterPeek;
     private boolean mExpanding;
@@ -83,6 +74,43 @@ public abstract class PanelView extends FrameLayout {
             runPeekAnimation();
         }
     };
+    private final Runnable mFlingCollapseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            fling(0, false /* expand */);
+        }
+    };
+    private final Runnable mFlingExpandRunnable = new Runnable() {
+        @Override
+        public void run() {
+            fling(0, true /* expand */);
+        }
+    };
+    private final Runnable mPostCollapseRunnable = new Runnable() {
+        @Override
+        public void run() {
+            collapse(false /* delayed */);
+        }
+    };
+
+    public PanelView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        mFlingAnimationUtils = new FlingAnimationUtils(context, 0.6f);
+        if (Define.SDK_INT >= 21) {
+            mFastOutSlowInInterpolator =
+                    AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in);
+            mLinearOutSlowInInterpolator =
+                    AnimationUtils.loadInterpolator(context, android.R.interpolator.linear_out_slow_in);
+        } else {
+            mFastOutSlowInInterpolator = new LocalPathInterpolator(0.4f, 0, 0.2f, 1);
+            mLinearOutSlowInInterpolator = new LocalPathInterpolator(0f, 0, 0.2f, 1);
+        }
+        mBounceInterpolator = new BounceInterpolator();
+    }
+
+    private final void logf(String fmt, Object... args) {
+        Log.v(TAG, (mViewName != null ? (mViewName + ": ") : "") + String.format(fmt, args));
+    }
 
     protected void onExpandingFinished() {
         mClosing = false;
@@ -119,7 +147,9 @@ public abstract class PanelView extends FrameLayout {
 
     private void runPeekAnimation() {
         mPeekHeight = getPeekHeight();
-        if (DEBUG) logf("peek to height=%.1f", mPeekHeight);
+        if (DEBUG) {
+            logf("peek to height=%.1f", mPeekHeight);
+        }
         if (mHeightAnimator != null) {
             return;
         }
@@ -151,21 +181,6 @@ public abstract class PanelView extends FrameLayout {
         notifyExpandingStarted();
         mPeekAnimator.start();
         mJustPeeked = true;
-    }
-
-    public PanelView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mFlingAnimationUtils = new FlingAnimationUtils(context, 0.6f);
-        if (Define.SDK_INT >= 21) {
-            mFastOutSlowInInterpolator =
-                    AnimationUtils.loadInterpolator(context, android.R.interpolator.fast_out_slow_in);
-            mLinearOutSlowInInterpolator =
-                    AnimationUtils.loadInterpolator(context, android.R.interpolator.linear_out_slow_in);
-        } else {
-            mFastOutSlowInInterpolator = new LocalPathInterpolator(0.4f, 0, 0.2f, 1);
-            mLinearOutSlowInInterpolator = new LocalPathInterpolator(0f, 0, 0.2f, 1);
-        }
-        mBounceInterpolator = new BounceInterpolator();
     }
 
     protected void loadDimens() {
@@ -525,11 +540,6 @@ public abstract class PanelView extends FrameLayout {
         return mViewName;
     }
 
-    public void setExpandedHeight(float height) {
-        if (DEBUG) logf("setExpandedHeight(%.1f)", height);
-        setExpandedHeightInternal(height + getOverExpansionPixels());
-    }
-
     @Override
     protected void onLayout (boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -601,16 +611,23 @@ public abstract class PanelView extends FrameLayout {
      */
     protected abstract int getMaxPanelHeight();
 
-    public void setExpandedFraction(float frac) {
-        setExpandedHeight(getMaxPanelHeight() * frac);
-    }
-
     public float getExpandedHeight() {
         return mExpandedHeight;
     }
 
+    public void setExpandedHeight(float height) {
+        if (DEBUG) {
+            logf("setExpandedHeight(%.1f)", height);
+        }
+        setExpandedHeightInternal(height + getOverExpansionPixels());
+    }
+
     public float getExpandedFraction() {
         return mExpandedFraction;
+    }
+
+    public void setExpandedFraction(float frac) {
+        setExpandedHeight(getMaxPanelHeight() * frac);
     }
 
     public boolean isFullyExpanded() {
@@ -630,7 +647,9 @@ public abstract class PanelView extends FrameLayout {
     }
 
     public void collapse(boolean delayed) {
-        if (DEBUG) logf("collapse: " + this);
+        if (DEBUG) {
+            logf("collapse: " + this);
+        }
         if (mPeekPending || mPeekAnimator != null) {
             mCollapseAfterPeek = true;
             if (mPeekPending) {
@@ -647,33 +666,19 @@ public abstract class PanelView extends FrameLayout {
             mClosing = true;
             notifyExpandingStarted();
             if (delayed) {
-                postDelayed(mFlingCollapseRunnable, 120);
+                postDelayed(mFlingCollapseRunnable, delay);
             } else {
                 fling(0, false /* expand */);
             }
         }
     }
 
-    private final Runnable mFlingCollapseRunnable = new Runnable() {
-        @Override
-        public void run() {
-            fling(0, false /* expand */);
-        }
-    };
-
-    private final Runnable mFlingExpandRunnable = new Runnable() {
-        @Override
-        public void run() {
-            fling(0, true /* expand */);
-        }
-    };
-
     public void expand(boolean delayed) {
         if (DEBUG) logf("expand: " + this);
         if (isFullyCollapsed()) {
             notifyExpandingStarted();
             if (delayed) {
-                postDelayed(mFlingExpandRunnable, 120);
+                postDelayed(mFlingExpandRunnable, delay);
             } else {
                 fling(0, true /* expand */);
             }
@@ -823,12 +828,6 @@ public abstract class PanelView extends FrameLayout {
             return onMiddleClicked();
     }
 
-    private final Runnable mPostCollapseRunnable = new Runnable() {
-        @Override
-        public void run() {
-            collapse(false /* delayed */);
-        }
-    };
     private boolean onMiddleClicked() {
         post(mPostCollapseRunnable);
         return false;
@@ -858,16 +857,17 @@ public abstract class PanelView extends FrameLayout {
 
     protected abstract float getCannedFlingDurationFactor();
 
-    public interface OnExpandListener {
-        public abstract void  onExpandingStarted();
-        public abstract void  onExpandingFinished();
-    }
-
     public OnExpandListener getOnExpandListener() {
         return onExpandListener;
     }
 
     public void setOnExpandListener(OnExpandListener onExpandListener) {
         this.onExpandListener = onExpandListener;
+    }
+
+    public interface OnExpandListener {
+        public abstract void onExpandingStarted();
+
+        public abstract void onExpandingFinished();
     }
 }

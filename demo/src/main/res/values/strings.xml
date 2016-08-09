@@ -1,3 +1,22 @@
 <resources>
     <string name="app_name">StackScrollView</string>
+    <string name="item_name_1">周大福</string>
+    <string name="item_name_2">六福珠宝</string>
+    <string name="item_name_3">达利园</string>
+    <string name="item_name_4">HARSON</string>
+    <string name="item_name_5">九阳</string>
+    <string name="item_name_6">苏泊尔</string>
+    <string name="item_name_7">清风</string>
+    <string name="item_name_8">爱国者</string>
+    <string name="item_name_9">天堂伞</string>
+    <string name="item_name_10">洛娃</string>
+    <string name="item_name_11">Yoobao</string>
+    <string name="item_name_12">DESLON</string>
+    <string name="item_name_13">三利</string>
+    <string name="item_name_14">纽曼</string>
+    <string name="item_name_15">费列罗</string>
+    <string name="item_name_16">三只松鼠</string>
+    <string name="item_name_17">西域美农</string>
+    <string name="item_name_18">周黑鸭</string>
+    <string name="item_name_19">达利园</string>
 </resources>

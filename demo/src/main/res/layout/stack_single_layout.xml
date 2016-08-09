@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2016 Baidu, Inc. All Rights Reserved.
+  -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.baidu.scrollstack.view.StackScrollPanelView
+            android:id="@+id/stack_scroll_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#00000000">
+
+        <com.baidu.scrollstack.view.ObservableScrollView
+                android:id="@+id/scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scrollbars="none"
+                android:overScrollMode="never"
+                android:fillViewport="true">
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                <RelativeLayout
+                        android:id="@+id/stack_spring_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/stack_spring_height"
+                        android:background="@android:color/transparent"/>
+            </LinearLayout>
+        </com.baidu.scrollstack.view.ObservableScrollView>
+
+        <com.baidu.scrollstack.stack.StackScrollLayout
+                android:id="@+id/stack_scroller"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <include layout="@layout/stack_header"/>
+
+        <com.baidu.scrollstack.view.AlphaOptimizedView
+                android:id="@+id/scroll_navbar_scrim"
+                android:layout_height="96dp"
+                android:layout_width="match_parent"
+                android:layout_gravity="bottom"
+                android:visibility="invisible"
+                android:background="@drawable/scroll_navbar_scrim"/>
+    </com.baidu.scrollstack.view.StackScrollPanelView>
+</merge>

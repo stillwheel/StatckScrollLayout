@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2016 Baidu, Inc. All Rights Reserved.
+  -->
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/stack_scroll_panel"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:background="#00000000">
+
+    <LinearLayout
+            android:id="@+id/stack_view_hour"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+        <include layout="@layout/time_set_single_layout"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/stack_view_minute"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+        <include layout="@layout/time_set_single_layout"/>
+    </LinearLayout>
+
+    <LinearLayout
+            android:id="@+id/stack_view_second"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+        <include layout="@layout/time_set_single_layout"/>
+    </LinearLayout>
+
+
+</LinearLayout>

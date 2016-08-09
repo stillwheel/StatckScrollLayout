@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (C) 2016 Baidu, Inc. All Rights Reserved.
+  -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <com.baidu.scrollstack.view.StackScrollPanelView
+            android:id="@+id/stack_scroll_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#00000000">
+
+        <com.baidu.scrollstack.stack.StackScrollLayout
+                android:id="@+id/stack_scroller"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+    </com.baidu.scrollstack.view.StackScrollPanelView>
+
+</merge>
