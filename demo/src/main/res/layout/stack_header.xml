@@ -18,6 +18,9 @@
             android:id="@+id/stack_scroll_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="15dp"
             android:text="Header"
+            android:textSize="20dp"
+            android:textColor="@android:color/black"
             android:gravity="center_horizontal"/>
 </com.baidu.scrollstack.view.StackHeaderView>

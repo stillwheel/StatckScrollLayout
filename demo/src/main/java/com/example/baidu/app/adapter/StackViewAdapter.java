@@ -1,41 +1,41 @@
-package com.example.baidu.app.activity;
+package com.example.baidu.app.adapter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.baidu.scrollstack.uitl.StackViewBaseAdapter;
 import com.example.baidu.app.R;
+import com.example.baidu.app.entity.TimeItemInfo;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
  * Created by helingjian on 16/3/29.
  */
-public class DoubleStackViewAdapter extends StackViewBaseAdapter {
+public class StackViewAdapter extends StackViewBaseAdapter{
 
-    private int[] drawableIds = new int[] {};
-    private int[] titleIds = new int[] {};
+    private List<TimeItemInfo> list = new ArrayList<TimeItemInfo>();
     private LayoutInflater layoutInflater;
 
-    public DoubleStackViewAdapter(LayoutInflater inflater) {
+    public StackViewAdapter(LayoutInflater inflater){
         layoutInflater = inflater;
     }
 
-    public void setData(int[] drawables, int[] titleIds) {
-        this.drawableIds = drawables;
-        this.titleIds = titleIds;
+    public void setData(List<TimeItemInfo> list) {
+        this.list = list;
     }
 
     @Override
     public int getCount() {
-        return drawableIds.length;
+        return list.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return null;
+        return list.get(position);
     }
 
     @Override
@@ -47,24 +47,19 @@ public class DoubleStackViewAdapter extends StackViewBaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.activity_stack_list_item, null);
+            convertView = layoutInflater.inflate(R.layout.time_set_item, null);
             viewHolder = new ViewHolder();
             viewHolder.textView = (TextView) convertView.findViewById(R.id.text);
-            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        Log.i("getView", "position " + position);
-        Log.i("getView", "titleIds[position] " + titleIds[position]
-                + "drawableIds[position] " + drawableIds[position]);
-        viewHolder.textView.setText(titleIds[position]);
-        viewHolder.imageView.setImageResource(drawableIds[position]);
+        viewHolder.textView.setText(list.get(position).getTime());
+        convertView.setTag(list.get(position));
         return convertView;
     }
 
     class ViewHolder {
         TextView textView;
-        ImageView imageView;
     }
 }

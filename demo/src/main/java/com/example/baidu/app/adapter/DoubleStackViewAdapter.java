@@ -1,7 +1,4 @@
-package com.example.baidu.app.activity;
-
-import java.util.ArrayList;
-import java.util.List;
+package com.example.baidu.app.adapter;
 
 import com.baidu.scrollstack.uitl.StackViewBaseAdapter;
 import com.example.baidu.app.R;
@@ -9,32 +6,35 @@ import com.example.baidu.app.R;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 /**
  * Created by helingjian on 16/3/29.
  */
-public class StackViewAdapter extends StackViewBaseAdapter{
+public class DoubleStackViewAdapter extends StackViewBaseAdapter {
 
-    private List<String> list = new ArrayList<String>();
+    private int[] drawableIds = new int[] {};
+    private String[] titles = new String[] {};
     private LayoutInflater layoutInflater;
 
-    public StackViewAdapter(LayoutInflater inflater){
+    public DoubleStackViewAdapter(LayoutInflater inflater) {
         layoutInflater = inflater;
     }
 
-    public void setData(List<String> list){
-        this.list = list;
+    public void setData(int[] drawables, String[] titleIds) {
+        this.drawableIds = drawables;
+        this.titles = titleIds;
     }
 
     @Override
     public int getCount() {
-        return list.size();
+        return drawableIds.length;
     }
 
     @Override
     public Object getItem(int position) {
-        return list.get(position);
+        return null;
     }
 
     @Override
@@ -46,18 +46,21 @@ public class StackViewAdapter extends StackViewBaseAdapter{
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = layoutInflater.inflate(R.layout.time_set_item, null);
+            convertView = layoutInflater.inflate(R.layout.activity_stack_list_item, null);
             viewHolder = new ViewHolder();
             viewHolder.textView = (TextView) convertView.findViewById(R.id.text);
+            viewHolder.imageView = (ImageView) convertView.findViewById(R.id.image);
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.textView.setText(list.get(position));
+        viewHolder.textView.setText(titles[position]);
+        viewHolder.imageView.setImageResource(drawableIds[position]);
         return convertView;
     }
 
     class ViewHolder {
         TextView textView;
+        ImageView imageView;
     }
 }

@@ -381,7 +381,7 @@ public class StackScrollLayout extends StackScrollLayoutParent
      * Updates the children views according to the stack scroll algorithm. Call this whenever
      * modifications to {@link #mOwnScrollY} are performed to reflect it in the view layout.
      */
-    private void updateChildren() {
+    public void updateChildren() {
         mAmbientState.setScrollY(mOwnScrollY);
         mStackScrollAlgorithm.getStackScrollState(mAmbientState, mCurrentStackScrollState);
         if (!isCurrentlyAnimating() && !mNeedsAnimation) {
@@ -2063,6 +2063,14 @@ public class StackScrollLayout extends StackScrollLayoutParent
 
     public void setEnableOverScroll(boolean enableOverScroll) {
         this.mEnableOverScroll = enableOverScroll;
+    }
+
+    public int getOwnScrollY() {
+        return mOwnScrollY;
+    }
+
+    public void setOwnScrollY(int ownScrollY) {
+        mOwnScrollY = ownScrollY;
     }
 
     /**

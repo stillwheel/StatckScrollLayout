@@ -40,7 +40,7 @@
                 android:gravity="center"
                 android:layout_gravity="center"
                 android:textSize="18dp"
-                android:text="多列菜单"
+                android:text="两列菜单"
                 android:textColor="@android:color/white"/>
 
         <TextView
@@ -51,7 +51,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:textSize="18dp"
-                android:text="日期设置"
+                android:text="三列菜单"
                 android:textColor="@android:color/white"/>
 
     </LinearLayout>

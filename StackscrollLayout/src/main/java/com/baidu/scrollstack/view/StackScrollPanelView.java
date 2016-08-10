@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -201,9 +202,13 @@ public class StackScrollPanelView extends PanelView implements
                 }
             }
         });
-        ColorDrawable drawable = (ColorDrawable) getBackground();
-        mBackgroundColor = drawable.getColor();
-        mBackgroundAlpha = Color.alpha(mBackgroundColor);
+
+        Drawable bgDrawable = getBackground();
+        if (bgDrawable != null && bgDrawable instanceof ColorDrawable) {
+            ColorDrawable drawable = (ColorDrawable) getBackground();
+            mBackgroundColor = drawable.getColor();
+            mBackgroundAlpha = Color.alpha(mBackgroundColor);
+        }
         setBackgroundColor(0);
         updateResources();
         updateScrollLayoutState();

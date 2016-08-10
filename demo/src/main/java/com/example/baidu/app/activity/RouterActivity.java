@@ -15,7 +15,7 @@ public class RouterActivity extends Activity {
     View.OnClickListener onDemo1ClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            showDemo(StackScrollDemoActivity.class);
+            showDemo(SingleStackScrollActivity.class);
         }
     };
 
@@ -38,7 +38,6 @@ public class RouterActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_router);
         initView();
-        showDemo(TimeSetActivity.class);
     }
 
     private void initView() {

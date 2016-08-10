@@ -25,9 +25,10 @@
                 android:layout_height="match_parent"
                 android:layout_marginRight="6dp"
                 android:layout_centerVertical="true"
-                android:gravity="center_vertical"
+                android:layout_toRightOf="@id/image"
+                android:gravity="center_vertical|right"
                 android:layout_alignParentRight="true"
-                android:textColor="#ffbebebe"/>
+                android:textColor="@android:color/black"/>
     </RelativeLayout>
 
 </com.baidu.scrollstack.view.ExpandableRowView>

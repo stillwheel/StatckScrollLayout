@@ -3,6 +3,7 @@ package com.example.baidu.app.activity;
 import com.baidu.scrollstack.stack.StackScrollLayout;
 import com.baidu.scrollstack.view.StackScrollPanelView;
 import com.example.baidu.app.R;
+import com.example.baidu.app.adapter.DoubleStackViewAdapter;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -13,7 +14,7 @@ import android.widget.TextView;
 /**
  * Created by helingjian on 16/3/14.
  */
-public class StackScrollDemoActivity extends Activity {
+public class SingleStackScrollActivity extends Activity {
 
     private static final int TYPE_STACK_ONLY = 0;
     private static final int TYPE_STACK_AND_SCROLL = 1;
@@ -23,25 +24,14 @@ public class StackScrollDemoActivity extends Activity {
     private StackScrollPanelView stackScrollPanelView;
     private StackScrollLayout mStackScroller;
     private TextView stackHeader;
+    private int[] drawableIds;
+    private String[] titles;
+
     StackScrollLayout.OnItemClickListener onStackItemClickListener = new StackScrollLayout.OnItemClickListener() {
         @Override
         public void onItemClick(StackScrollLayout parent, View itemView, int position, long id) {
-            stackHeader.setText("onItemClick position = " + position);
+            stackHeader.setText(titles[position]);
         }
-    };
-    private int[] drawableIds = new int[] {
-            R.drawable.icon1, R.drawable.icon2, R.drawable.icon3, R.drawable.icon4,
-            R.drawable.icon5, R.drawable.icon6, R.drawable.icon7, R.drawable.icon8,
-            R.drawable.icon9, R.drawable.icon10, R.drawable.icon11, R.drawable.icon12,
-            R.drawable.icon13, R.drawable.icon4, R.drawable.icon15, R.drawable.icon16,
-            R.drawable.icon17, R.drawable.icon8, R.drawable.icon19
-    };
-    private int[] titleIds = new int[] {
-            R.string.item_name_19, R.string.item_name_18, R.string.item_name_17, R.string.item_name_16,
-            R.string.item_name_15, R.string.item_name_14, R.string.item_name_13, R.string.item_name_12,
-            R.string.item_name_11, R.string.item_name_10, R.string.item_name_9, R.string.item_name_8,
-            R.string.item_name_7, R.string.item_name_6, R.string.item_name_5, R.string.item_name_4,
-            R.string.item_name_3, R.string.item_name_2, R.string.item_name_1
     };
 
     @Override
@@ -60,6 +50,7 @@ public class StackScrollDemoActivity extends Activity {
             default:
                 break;
         }
+        initValues();
         initScroller();
     }
 
@@ -68,7 +59,7 @@ public class StackScrollDemoActivity extends Activity {
         stackHeader = (TextView) findViewById(R.id.stack_scroll_header);
         stackScrollPanelView = (StackScrollPanelView) findViewById(R.id.stack_scroll_panel);
         stackViewAdapter = new DoubleStackViewAdapter(LayoutInflater.from(this));
-        stackViewAdapter.setData(drawableIds, titleIds);
+        stackViewAdapter.setData(drawableIds, titles);
         mStackScroller.setAdapter(stackViewAdapter);
         mStackScroller.setOnItemClickListener(onStackItemClickListener);
         if (demoType == TYPE_STACK_AND_SCROLL) {
@@ -76,13 +67,35 @@ public class StackScrollDemoActivity extends Activity {
         }
     }
 
-    @Override
-    public void onBackPressed() {
-        if (stackScrollPanelView.isFullyExpanded()) {
-            stackScrollPanelView.collapse(false);
-        } else if (stackScrollPanelView.isFullyCollapsed()) {
-            stackScrollPanelView.expand(false);
-        }
-        stackViewAdapter.notifyDataSetChanged();
+    //    @Override
+    //    public void onBackPressed() {
+    //        if (stackScrollPanelView.isFullyExpanded()) {
+    //            stackScrollPanelView.collapse(false);
+    //        } else if (stackScrollPanelView.isFullyCollapsed()) {
+    //            stackScrollPanelView.expand(false);
+    //        }
+    //        stackViewAdapter.notifyDataSetChanged();
+    //    }
+
+    private void initValues() {
+        titles = new String[] {
+                getString(R.string.item_name_1), getString(R.string.item_name_2),
+                getString(R.string.item_name_3), getString(R.string.item_name_4),
+                getString(R.string.item_name_5), getString(R.string.item_name_6),
+                getString(R.string.item_name_7), getString(R.string.item_name_8),
+                getString(R.string.item_name_9), getString(R.string.item_name_10),
+                getString(R.string.item_name_11), getString(R.string.item_name_12),
+                getString(R.string.item_name_13), getString(R.string.item_name_4),
+                getString(R.string.item_name_15), getString(R.string.item_name_16),
+                getString(R.string.item_name_17), getString(R.string.item_name_8),
+                getString(R.string.item_name_19)
+        };
+        drawableIds = new int[] {
+                R.drawable.icon1, R.drawable.icon2, R.drawable.icon3, R.drawable.icon4,
+                R.drawable.icon5, R.drawable.icon6, R.drawable.icon7, R.drawable.icon8,
+                R.drawable.icon9, R.drawable.icon10, R.drawable.icon11, R.drawable.icon12,
+                R.drawable.icon13, R.drawable.icon4, R.drawable.icon15, R.drawable.icon16,
+                R.drawable.icon17, R.drawable.icon8, R.drawable.icon19
+        };
     }
 }
